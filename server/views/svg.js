@@ -9,7 +9,7 @@ function pentagramPath(cx, cy, r, rot = 0) {
 }
 
 /** Mandala: rings, ticks, inverted pentagram, sigil ring and an inscription on a circle. */
-function mandala({ size = 800, text = 'NOT FOR THE WEAK \u2022 SOME LOVE IS CURSED \u2022 NOT A BRAND, A CURSE \u2022 BEING DIFFERENT IS THE POINT \u2022 ', id = 'm' } = {}) {
+function mandala({ size = 800, text = 'NOT FOR THE WEAK \u2022 SOME LOVE IS CURSED \u2022 IT\u2019S US \u2022 BEING DIFFERENT IS THE POINT \u2022 ', id = 'm' } = {}) {
   const c = size / 2; const R = c - 6;
   const out = [];
   out.push(`<svg class="mandala" viewBox="0 0 ${size} ${size}" aria-hidden="true" focusable="false">`);
