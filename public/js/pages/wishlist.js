@@ -1,7 +1,7 @@
 import { $, api, esc, notConfigured } from '../core.js';
 import { wishlist } from '../cart.js';
 import { productCard, summonState } from '../cards.js';
-import { reveals, magnetic } from '../fx.js';
+import { reveals } from '../fx.js';
 
 export default async function wishlistPage() {
   const grid = $('[data-wishlist]'); const meta = $('[data-wish-meta]');
@@ -15,5 +15,5 @@ export default async function wishlistPage() {
   } catch (e) { grid.innerHTML = notConfigured(e) ? summonState() : `<div class="empty"><h2>The realm is quiet</h2><p>${esc(e.message)}</p></div>`; }
   grid.removeAttribute('aria-busy');
   grid.addEventListener('click', (e) => { const w = e.target.closest('[data-wish]'); if (w && !wishlist.has(w.dataset.wish)) setTimeout(() => { w.closest('.card').remove(); if (!grid.children.length) empty(); }, 250); });
-  reveals(grid); magnetic(grid);
+  reveals(grid);
 }
