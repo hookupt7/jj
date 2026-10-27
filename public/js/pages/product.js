@@ -1,8 +1,9 @@
 import { $, $$, api, boot, esc, ngn, imgUrl, srcset, colourCss, toast, isTouch, notConfigured, waLink } from '../core.js';
 import { cart, wishlist, recent, openDrawer } from '../cart.js';
 import { productCard, summonState } from '../cards.js';
-import { reveals, magnetic } from '../fx.js';
+import { reveals } from '../fx.js';
 import { openModal } from '../ui.js';
+import { sizeGuideHtml, waOrderHref, notifyHtml } from '../buy.js';
 
 const S = boot.settings || {};
 const isSize = (n) => /^size$/i.test(n);
@@ -13,15 +14,6 @@ function shippingCopy() {
   const zones = [['lagos', 'Lagos'], ['southWest', 'South West'], ['other', 'Other states']];
   const rows = zones.map(([k, l]) => `<li>${l}: ${sh[k] === null || sh[k] === undefined ? 'delivery fee confirmed on WhatsApp' : ngn(sh[k])}</li>`).join('');
   return `<p>We deliver anywhere in Nigeria.</p><ul>${rows}</ul>${sh.note ? `<p>${esc(sh.note)}</p>` : ''}<p>${esc((S.policies && S.policies.returns) || '')}</p><p><a href="/shipping-returns">Shipping &amp; returns policy</a></p>`;
-}
-
-function sizeGuideHtml() {
-  const g = S.sizeGuide || { rows: [] };
-  const table = g.rows && g.rows.length
-    ? `<div class="sizeguide"><table><thead><tr><th scope="col">Size</th><th scope="col">Chest (${esc(g.unit)})</th><th scope="col">Length (${esc(g.unit)})</th>${g.rows.some((r) => r.sleeve) ? `<th scope="col">Sleeve (${esc(g.unit)})</th>` : ''}</tr></thead><tbody>${g.rows.map((r) => `<tr><td>${esc(r.size)}</td><td>${esc(r.chest)}</td><td>${esc(r.length)}</td>${g.rows.some((x) => x.sleeve) ? `<td>${esc(r.sleeve)}</td>` : ''}</tr>`).join('')}</tbody></table></div>`
-    : `<p>Exact measurements for this piece are confirmed on WhatsApp. Send us your usual size and we will tell you which one to take.</p><a class="btn btn--blood" href="${waLink('Hi EOS, I need help with sizing.')}" target="_blank" rel="noopener"><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Ask on WhatsApp</span></a>`;
-  return `<h2 id="modal-title">Size guide</h2>${table}${g.note ? `<p style="margin-top:16px">${esc(g.note)}</p>` : ''}
-    <div class="sizeguide__how"><p><b>Chest.</b> Lay a tee you love flat. Measure straight across, armpit to armpit.</p><p><b>Length.</b> From the highest point of the shoulder down to the hem.</p><p><b>Between sizes?</b> Size up for a heavier, oversized drop. Size down for a closer fit.</p></div>`;
 }
 
 export default async function product() {
@@ -132,9 +124,11 @@ export default async function product() {
     ${sizeOpt ? `<div class="pinfo__opt"><div class="pinfo__opt-head"><span>Size<b data-sel-size></b></span><button class="text-btn" type="button" data-size-guide>Size guide</button></div><div class="sizes" role="radiogroup" aria-label="Size">${sizeOpt.values.map((s) => `<button type="button" class="size" role="radio" data-opt="${esc(sizeOpt.name)}" data-val="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>` : ''}
     <div class="pinfo__actions">
       <div class="qty"><button type="button" data-q="-1" aria-label="Decrease quantity"><svg><use href="#i-minus"/></svg></button><output data-qv aria-live="polite">1</output><button type="button" data-q="1" aria-label="Increase quantity"><svg><use href="#i-plus"/></svg></button></div>
-      <button class="btn btn--blood" type="button" data-add data-magnetic><span>Add to cart</span></button>
+      <button class="btn btn--blood" type="button" data-add><span>Add to cart</span></button>
       <button class="btn btn--ghost" type="button" data-buy><span>Buy now</span></button>
+      <a class="btn btn--wa" href="#" target="_blank" rel="noopener" data-wa-order><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Order on WhatsApp</span></a>
     </div>
+    <div data-notify-slot></div>
     <button class="text-btn pinfo__wish${wished() ? ' is-on' : ''}" type="button" data-pwish aria-pressed="${wished()}"><svg><use href="#i-heart"/></svg><span>${wished() ? 'Saved to wishlist' : 'Save to wishlist'}</span></button>
     ${p.descriptionHtml ? `<div class="pinfo__desc">${p.descriptionHtml}</div>` : ''}
     <div class="accordion">
@@ -165,6 +159,11 @@ export default async function product() {
     const max = v && v.stock !== null && !preorder ? v.stock : 20;
     if (qty > max) qty = Math.max(1, max);
     $('[data-qv]', info).textContent = qty;
+    $('[data-wa-order]', info).href = waOrderHref(p, v, qty);
+    const out = !preorder && (!p.available || (v && !v.available));
+    const slot = $('[data-notify-slot]', info);
+    const key = out ? `${p.handle}|${v ? v.id : ''}` : '';
+    if (slot.dataset.key !== key) { slot.dataset.key = key; slot.innerHTML = out ? notifyHtml(p, v) : ''; }
     if (sticky) { $('[data-sticky-title]').textContent = p.title; $('[data-sticky-price]').textContent = ngn(v ? v.price : p.price); $('[data-sticky-add]').disabled = !can; }
   };
   update();
@@ -198,7 +197,6 @@ export default async function product() {
     const addBtn = $('[data-add]', info);
     new IntersectionObserver(([en]) => { sticky.hidden = false; sticky.classList.toggle('is-on', !en.isIntersecting && en.boundingClientRect.top < 0); }).observe(addBtn);
   }
-  magnetic(info);
 
   /* ---------- related + recently viewed ---------- */
   if (data.related.length) {
@@ -212,5 +210,5 @@ export default async function product() {
       if (r.items.length) { $('[data-recent-grid]', root).innerHTML = r.items.map((x, i) => productCard(x, { index: i })).join(''); $('[data-recent]', root).hidden = false; }
     } catch (_) { /* optional */ }
   }
-  reveals(root); magnetic(root);
+  reveals(root);
 }
