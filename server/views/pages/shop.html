@@ -1,0 +1,35 @@
+<section class="page-hero page-hero--shop">
+  <div class="wrap page-hero__grid">
+    <p class="section-index"><span class="num">&#8224;</span><span>{{kicker}}</span></p>
+    <h1 class="page-hero__title display" data-scramble>{{heading}}</h1>
+    <p class="page-hero__meta" data-result-count aria-live="polite"></p>
+    {{{collectionIntro}}}
+  </div>
+</section>
+<section class="shop wrap" data-shop data-collection="{{collectionHandle}}">
+  <nav class="shop__tabs" data-type-tabs aria-label="Categories" hidden></nav>
+  <div class="shop__bar">
+    <button class="btn btn--line shop__filter-toggle" type="button" data-filters-open aria-controls="filters"><span>Filter</span><span class="badge badge--inline" data-filter-count hidden></span></button>
+    <div class="shop__chips" data-active-filters></div>
+    <label class="select"><span class="sr">Sort</span>
+      <select data-sort>
+        <option value="featured">Featured</option>
+        <option value="newest">Newest</option>
+        <option value="price-asc">Price, low to high</option>
+        <option value="price-desc">Price, high to low</option>
+        <option value="title">A to Z</option>
+      </select>
+    </label>
+  </div>
+  <div class="shop__layout">
+    <aside class="filters" id="filters" aria-label="Filters" data-filters>
+      <div class="filters__head"><h2>Filter</h2><button class="icon-btn" type="button" data-filters-close aria-label="Close filters"><svg><use href="#i-close"/></svg></button></div>
+      <div class="filters__body" data-filters-body></div>
+      <div class="filters__foot"><button type="button" class="btn btn--line" data-filters-clear>Clear all</button><button type="button" class="btn btn--blood" data-filters-close>Show results</button></div>
+    </aside>
+    <div class="shop__results">
+      <div class="products-grid" data-grid aria-busy="true"></div>
+      <nav class="pagination" data-pagination aria-label="Pages"></nav>
+    </div>
+  </div>
+</section>
