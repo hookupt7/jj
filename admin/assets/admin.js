@@ -723,7 +723,6 @@ async function viewStorefront() {
   const s = await loadSettings();
   const prods = needsShopify() ? [] : await api('/products?status=active').then((r) => r.items).catch(() => []);
   const cols = needsShopify() ? [] : await api('/collections').then((r) => r.items).catch(() => []);
-  const S = s.sections;
   v.innerHTML = header('Homepage & banner', 'What visitors see first.', `<a class="btn btn--ghost" href="/" target="_blank" rel="noopener">${I.ext}Preview</a>`) + settingsNote() + `
   <form novalidate data-f>
     <div class="grid grid--half">
@@ -732,21 +731,22 @@ async function viewStorefront() {
         <label class="field" style="margin-top:14px"><span>Text</span><input name="annText" maxlength="160" value="${esc(s.announcement.text)}" placeholder="e.g. The second drop opens Friday, 8pm"></label>
         <label class="field"><span>Link (optional)</span><input name="annLink" maxlength="300" value="${esc(s.announcement.link)}" placeholder="/shop or https://..."></label></div>
       <div class="card"><div class="card__h"><h2>Hero</h2></div>
-        <label class="field"><span>Small line above</span><input name="heroEyebrow" maxlength="80" value="${esc(s.hero.eyebrow)}"></label>
+        <label class="field"><span>Small line above the title (optional, leave empty for none)</span><input name="heroEyebrow" maxlength="80" value="${esc(s.hero.eyebrow)}"></label>
         <label class="field"><span>Title</span><input name="heroTitle" maxlength="60" value="${esc(s.hero.title)}"></label>
         <label class="field"><span>Subtitle</span><input name="heroSub" maxlength="160" value="${esc(s.hero.subtitle)}"></label>
         <div class="row row--2"><label class="field"><span>Button label</span><input name="ctaLabel" maxlength="40" value="${esc(s.hero.ctaLabel)}"></label><label class="field"><span>Button link</span><input name="ctaLink" maxlength="300" value="${esc(s.hero.ctaLink)}"></label></div></div>
     </div>
     <div class="grid grid--half" style="margin-top:14px">
-      <div class="card"><div class="card__h"><h2>Sections</h2></div><div class="switches">
-        ${sw('s_marquee', S.marquee, 'Brand lines marquee')}${sw('s_manifesto', S.manifesto, 'Manifesto')}${sw('s_drop', S.drop, 'Next drop countdown')}${sw('s_featured', S.featured, 'Featured products')}${sw('s_collections', S.collections, 'Collections')}${sw('s_film', S.film, 'Watch the film')}${sw('s_newsletter', S.newsletter, 'Join the cult (newsletter)')}</div></div>
-      <div class="card"><div class="card__h"><h2>Featured products</h2></div>
-        <label class="field"><span>Section title</span><input name="featTitle" maxlength="60" value="${esc(s.featured.title)}"></label>
+      <div class="card"><div class="card__h"><h2>Home page layout</h2></div>
+        <p class="muted" style="margin-top:0;font-size:13px">The home page is one full screen: the film, the title, the subtitle and the button. The manifesto lives on About, the film on Lookbook, the newsletter on Join the cult, and products in the Shop.</p></div>
+      <div class="card"><div class="card__h"><h2>Featured order (shop)</h2></div>
+        <p class="muted" style="margin-top:0;font-size:12px">These pieces come first when the shop is sorted by "Featured".</p>
+        <input type="hidden" name="featTitle" value="${esc(s.featured.title)}">
         <label class="field"><span>Show pieces from a collection</span><select name="featCol"><option value="">Newest active products</option>${cols.map((c) => `<option value="${esc(c.handle)}" ${s.featured.collectionHandle === c.handle ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select></label>
         <div class="field"><span>Or hand-pick (in this order wins over the collection)</span>${prods.length ? `<div class="switches">${prods.map((p) => `<label class="switch"><input type="checkbox" name="feat" value="${esc(p.handle)}" ${s.featured.productHandles.includes(p.handle) ? 'checked' : ''}><i></i><span>${esc(p.title)}</span></label>`).join('')}</div>` : '<small>Active products appear here.</small>'}</div></div>
     </div>
     <div class="card" style="margin-top:14px"><div class="card__h"><h2>Next drop countdown</h2></div>
-      <div class="switches">${sw('dropOn', s.drop.enabled, 'Show the "Next drop" timer on the homepage')}</div>
+      <div class="switches">${sw('dropOn', s.drop.enabled, 'Show the "Next drop" timer on the Join the cult page')}</div>
       <div class="row row--3" style="margin-top:14px"><label class="field"><span>Title</span><input name="dropTitle" maxlength="80" value="${esc(s.drop.title)}"></label><label class="field"><span>Opens (WAT)</span><input type="datetime-local" name="dropAt" value="${toWat(s.drop.dateISO)}"></label>
       <label class="field"><span>Links to product</span><select name="dropProduct"><option value="">The shop</option>${prods.map((p) => `<option value="${esc(p.handle)}" ${s.drop.productHandle === p.handle ? 'selected' : ''}>${esc(p.title)}</option>`).join('')}</select></label></div>
       <label class="field"><span>Note (optional)</span><input name="dropNote" maxlength="200" value="${esc(s.drop.note)}"></label>
@@ -761,7 +761,6 @@ async function viewStorefront() {
     saveSettings({
       announcement: { enabled: f.annOn.checked, text: f.annText.value, link: f.annLink.value },
       hero: { eyebrow: f.heroEyebrow.value, title: f.heroTitle.value, subtitle: f.heroSub.value, ctaLabel: f.ctaLabel.value, ctaLink: f.ctaLink.value },
-      sections: Object.fromEntries(['marquee', 'manifesto', 'drop', 'featured', 'collections', 'film', 'newsletter'].map((k) => [k, f[`s_${k}`].checked])),
       featured: { title: f.featTitle.value, collectionHandle: f.featCol.value, productHandles: order },
       drop: { enabled: f.dropOn.checked, title: f.dropTitle.value, dateISO: fromWat(f.dropAt.value), productHandle: f.dropProduct.value, note: f.dropNote.value },
     }, $('[type="submit"]', f));
