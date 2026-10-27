@@ -1,8 +1,8 @@
 // Chrome: header, mobile menu, search, modal, newsletter, quick add.
-import { $, $$, api, boot, esc, ngn, priceRange, imgUrl, toast, lockScroll, trapFocus, debounce, waLink, setBusy, notConfigured } from './core.js';
+import { $, $$, api, boot, esc, ngn, priceRange, imgUrl, srcset, toast, lockScroll, trapFocus, debounce, waLink, setBusy, notConfigured } from './core.js';
 import { cart, openDrawer } from './cart.js';
 import { cardData } from './cards.js';
-import { magnetic } from './fx.js';
+import { sizeGuideHtml, waOrderHref, notifyHtml, bindNotify } from './buy.js';
 
 export function header() {
   const h = $('.site-header'); if (!h) return;
@@ -84,7 +84,6 @@ export function openModal(htmlStr, { media = false, onClose } = {}) {
   const close = () => { m.hidden = true; lockScroll(false); $('[data-modal-body]', m).innerHTML = ''; if (modalRelease) modalRelease(); modalRelease = null; onClose && onClose(); };
   m._close = close;
   modalRelease = trapFocus($('.modal__panel', m), close);
-  magnetic(m);
   return close;
 }
 export function initModal() {
@@ -102,7 +101,7 @@ export function newsletter() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'That email will not reach us.'; msg.classList.add('is-error'); form.email.focus(); return; }
     setBusy(btn, true);
     try {
-      const r = await api('/api/newsletter', { method: 'POST', body: { email, website: form.website.value, source: 'home' } });
+      const r = await api('/api/newsletter', { method: 'POST', body: { email, website: form.website.value, source: form.dataset.source || 'site' } });
       msg.textContent = r.already ? 'You are already one of us.' : 'Sworn in. You will hear first.';
       msg.classList.add('is-ok'); form.reset();
     } catch (err) {
@@ -133,5 +132,64 @@ export function quickAdd() {
     const p = cardData.get(b.dataset.handle); if (!p || !p.quick) return;
     const ok = cart.add({ variantId: p.quick.id, handle: p.handle, title: p.title, variantTitle: '', price: p.price, image: p.images[0] && p.images[0].src, max: p.drop && p.drop.preorder ? null : p.quick.stock });
     if (ok) { toast(`${p.title} added`); openDrawer(); }
+  });
+}
+
+/* ---------- quick view (shop grid) ---------- */
+export function quickView() {
+  bindNotify();
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-quick-view]'); if (!b) return;
+    e.preventDefault();
+    const handle = b.dataset.quickView;
+    setBusy(b, true);
+    let data;
+    try { data = await api(`/api/products/${encodeURIComponent(handle)}`); } catch (err) { setBusy(b, false); location.href = `/product/${handle}`; return; }
+    setBusy(b, false);
+    const p = data.product;
+    const sizeOpt = (p.options || []).find((o) => /^size$/i.test(o.name));
+    const preorder = Boolean(p.drop && p.drop.preorder);
+    const single = p.variants.length === 1 ? p.variants[0] : null;
+    let chosen = single;
+    const im = p.images[0];
+    const sizes = sizeOpt ? sizeOpt.values.map((s) => { const v = p.variants.find((x) => x.options[sizeOpt.name] === s); const ok = v && (v.available || preorder); return `<button type="button" class="size${ok ? '' : ' is-out'}" role="radio" aria-checked="false" data-qv-size="${esc(s)}" aria-label="${esc(s)}${ok ? '' : ', sold out'}">${esc(s)}</button>`; }).join('') : '';
+    const close = openModal(`<div class="qv">
+      <div class="qv__media">${im ? `<img src="${esc(imgUrl(im.src, 900))}" srcset="${esc(srcset(im.src, [540, 720, 960]))}" sizes="(min-width:800px) 380px, 90vw" alt="${esc(im.alt || p.title)}" ${im.w ? `width="${im.w}" height="${im.h}"` : ''}>` : ''}</div>
+      <div class="qv__info">
+        ${p.type ? `<p class="pinfo__type">${esc(p.type)}</p>` : ''}
+        <h2 id="modal-title" class="qv__title">${esc(p.title)}</h2>
+        <p class="pinfo__price price">${p.compareAt ? `<s>${ngn(p.compareAt)}</s>` : ''}<span>${priceRange(p)}</span></p>
+        ${sizeOpt ? `<div class="pinfo__opt"><div class="pinfo__opt-head"><span>Size<b data-qv-sel></b></span><button class="text-btn" type="button" data-qv-guide>Size guide</button></div><div class="sizes" role="radiogroup" aria-label="Size">${sizes}</div></div>` : ''}
+        <div class="qv__actions">
+          <button class="btn btn--blood" type="button" data-qv-add ${!p.available && !preorder ? 'disabled' : ''}><span>${!p.available && !preorder ? 'Sold out' : preorder ? 'Pre-order' : 'Add to cart'}</span></button>
+          <a class="btn btn--wa" href="${waOrderHref(p, single)}" target="_blank" rel="noopener" data-qv-wa><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Order on WhatsApp</span></a>
+        </div>
+        <div data-qv-notify>${!p.available && !preorder ? notifyHtml(p, null) : ''}</div>
+        <div class="qv__guide" data-qv-guide-box hidden>${sizeGuideHtml().replace('id="modal-title"', '')}</div>
+        <a class="link-arrow qv__more" href="/product/${esc(p.handle)}">Full details <svg><use href="#i-arrow"/></svg></a>
+      </div></div>`);
+    const m = $('#modal');
+    const panel = $('.qv', m);
+    if (!panel) return;
+    panel.addEventListener('click', (ev) => {
+      const sb = ev.target.closest('[data-qv-size]');
+      if (sb) {
+        $$('[data-qv-size]', panel).forEach((x) => x.setAttribute('aria-checked', String(x === sb)));
+        chosen = p.variants.find((x) => x.options[sizeOpt.name] === sb.dataset.qvSize) || null;
+        $('[data-qv-sel]', panel).textContent = ` \u2014 ${sb.dataset.qvSize}`;
+        $('[data-qv-wa]', panel).href = waOrderHref(p, chosen);
+        const out = chosen && !chosen.available && !preorder;
+        $('[data-qv-notify]', panel).innerHTML = out ? notifyHtml(p, chosen) : (!p.available && !preorder ? notifyHtml(p, null) : '');
+        const add = $('[data-qv-add]', panel); add.disabled = Boolean(out) || (!p.available && !preorder);
+        add.querySelector('span').textContent = out ? 'Sold out in this size' : preorder ? 'Pre-order' : (!p.available ? 'Sold out' : 'Add to cart');
+        return;
+      }
+      if (ev.target.closest('[data-qv-guide]')) { const g = $('[data-qv-guide-box]', panel); g.hidden = !g.hidden; return; }
+      if (ev.target.closest('[data-qv-add]')) {
+        if (!chosen) { toast('Choose a size first', { error: true }); return; }
+        const ok = cart.add({ variantId: chosen.id, handle: p.handle, title: p.title, variantTitle: chosen.title, price: chosen.price, image: im && im.src, max: preorder ? null : chosen.stock });
+        if (ok) { toast(`${p.title} added`); if (close) close(); openDrawer(); }
+      }
+    });
   });
 }
