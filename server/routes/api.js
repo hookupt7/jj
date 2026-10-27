@@ -151,6 +151,16 @@ router.post('/newsletter', formLimiter, ah(async (req, res) => {
   res.json({ ok: true, already: r.already });
 }));
 
+router.post('/notify', formLimiter, ah(async (req, res) => {
+  const b = req.body || {};
+  if (b.website) return res.json({ ok: true });
+  const email = v.email(b.email);
+  const handle = v.handle(b.handle);
+  const variant = v.str(b.variant, 'variant', { max: 60 });
+  await customers.notify(email, handle, variant);
+  res.json({ ok: true });
+}));
+
 router.post('/orders/track', trackLimiter, ah(async (req, res) => {
   const b = req.body || {};
   const num = v.str(b.orderNumber, 'order number', { required: true, max: 20 });
