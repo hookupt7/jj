@@ -46,7 +46,7 @@ export default function success() {
       <div class="is-total"><dt>Total</dt><dd>${ngn(o.total)}</dd></div>
     </dl>
     <div class="success__actions">
-      <a class="btn btn--blood" href="${waLink(whatsappMessage(o))}" target="_blank" rel="noopener" data-magnetic><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Confirm on WhatsApp</span></a>
+      <a class="btn btn--blood" href="${waLink(whatsappMessage(o))}" target="_blank" rel="noopener"><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Confirm on WhatsApp</span></a>
       <a class="link-arrow" href="/track?o=${encodeURIComponent(o.orderNumber.replace('#', ''))}">Track this order <svg><use href="#i-arrow"/></svg></a>
     </div>`;
 }
