@@ -17,7 +17,7 @@ export function summonState({ title = 'The first drop is being summoned', copy =
       <p class="section-index"><span class="num">&#8224;</span><span>Soon</span></p>
       <h3 class="summon__title">${esc(title)}</h3>
       <p class="summon__copy">${esc(copy)}</p>
-      ${actions ? `<div class="summon__actions"><a class="btn btn--blood" href="/#cult-title" data-magnetic><span>Join the cult</span></a><a class="link-arrow" href="https://www.tiktok.com/@_enemyofswag_" target="_blank" rel="noopener">Watch on TikTok <svg><use href="#i-arrow"/></svg></a></div>` : ''}
+      ${actions ? `<div class="summon__actions"><a class="btn btn--blood" href="/join"><span>Join the cult</span></a><a class="link-arrow" href="https://www.tiktok.com/@_enemyofswag_" target="_blank" rel="noopener">Watch on TikTok <svg><use href="#i-arrow"/></svg></a></div>` : ''}
     </div>
   </div>`;
 }
@@ -45,11 +45,12 @@ export function productCard(p, { eager = false, index = 0 } = {}) {
   const meta = [p.type, p.colours && p.colours.length > 1 ? `${p.colours.length} colours` : (p.colours && p.colours[0]) || ''].filter(Boolean).join(' \u2014 ');
   return `<article class="card" data-reveal style="transition-delay:${(index % 4) * 70}ms">
     <div class="card__frame">
-      <a class="card__media${a ? '' : ' skel'}" href="/product/${esc(p.handle)}" data-cursor="view" aria-label="${esc(p.title)}">
+      <a class="card__media${a ? '' : ' skel'}" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">
         ${imgTag(a, 'card__img card__img--1', !eager)}${imgTag(b, 'card__img card__img--2', true)}
       </a>
       ${flag}
       <button class="icon-btn card__wish${wished ? ' is-on' : ''}" type="button" data-wish="${esc(p.handle)}" aria-pressed="${wished}" aria-label="${wished ? 'Remove from' : 'Save to'} wishlist"><svg><use href="#i-heart"/></svg></button>
+      <button class="card__qv" type="button" data-quick-view="${esc(p.handle)}" aria-label="Quick view: ${esc(p.title)}"><svg><use href="#i-eye"/></svg><span>Quick view</span></button>
       ${quick ? `<div class="card__quick">${quick}</div>` : ''}
     </div>
     <div class="card__body">
