@@ -1,6 +1,7 @@
 import { $, $$, api, esc, ngn, colourCss, debounce, lockScroll, trapFocus, notConfigured } from '../core.js';
 import { productCard, summonState, skeletonCards } from '../cards.js';
-import { reveals, magnetic } from '../fx.js';
+import { reveals } from '../fx.js';
+import { recent } from '../cart.js';
 
 const LIST_KEYS = ['type', 'size', 'colour'];
 const parse = () => {
@@ -24,7 +25,20 @@ const toQuery = (st, extra = {}) => {
   return u.toString();
 };
 
+async function recentlyViewed() {
+  const sec = $('[data-recent]'); if (!sec) return;
+  const handles = recent.list().slice(0, 4);
+  if (!handles.length) return;
+  try {
+    const r = await api(`/api/products?handles=${encodeURIComponent(handles.join(','))}`);
+    if (!r.items.length) return;
+    $('[data-recent-grid]', sec).innerHTML = r.items.map((x, i) => productCard(x, { index: i })).join('');
+    sec.hidden = false; reveals(sec);
+  } catch (_) { /* optional row */ }
+}
+
 export default function shop() {
+  recentlyViewed();
   const root = $('[data-shop]'); if (!root) return;
   const collection = root.dataset.collection || '';
   const grid = $('[data-grid]', root); const pag = $('[data-pagination]', root);
@@ -101,7 +115,7 @@ export default function shop() {
       else grid.innerHTML = r.items.map((p, i) => productCard(p, { eager: i < 3, index: i })).join('');
       if (count) count.textContent = r.total ? `${r.total} piece${r.total === 1 ? '' : 's'}` : '';
       renderPagination(r);
-      reveals(grid); magnetic(grid);
+      reveals(grid);
       if (scroll) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
       if (e.name === 'AbortError') return;
