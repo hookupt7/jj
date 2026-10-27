@@ -1,8 +1,23 @@
-<section class="page-hero page-hero--lookbook">
+<section class="page-hero page-hero--goat">
   <div class="wrap page-hero__grid">
-    <p class="section-index"><span class="num">&#8224;</span><span>Lookbook</span></p>
-    <h1 class="page-hero__title display" data-scramble>Not for the weak</h1>
-    <p class="page-hero__lede">Every frame here is a piece you can own. Tap one to claim it.</p>
+    <div class="page-hero__text">
+      <p class="section-index"><span class="num">&#8224;</span><span>Lookbook &amp; film</span></p>
+      <h1 class="page-hero__title display">Not for the weak</h1>
+      <p class="page-hero__lede">She looked into the mirror. Something looked back.</p>
+    </div>
+    <div class="page-hero__goat" aria-hidden="true">{{{goatSm}}}</div>
+  </div>
+</section>
+<section class="film" aria-label="The EOS film">
+  <div class="wrap">
+    <div class="film__frame">
+      <video class="film__video" data-autoplay autoplay muted loop playsinline webkit-playsinline preload="metadata" disablepictureinpicture disableremoteplayback poster="/media/eos-film-poster.jpg" width="720" height="720" aria-label="EOS film, 15 seconds, no sound">
+        <source src="/media/eos-film.mp4" type="video/mp4">
+      <source src="/media/eos-film.webm" type="video/webm">
+      </video>
+      <div class="film__shade" aria-hidden="true"></div>
+    </div>
+    <p class="film__meta"><span>EOS</span><span>The film</span><span>00:15</span><span>Some love is cursed</span></p>
   </div>
 </section>
 <section class="lookbook" data-lookbook aria-busy="true"></section>
