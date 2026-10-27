@@ -1,9 +1,12 @@
-<section class="page-hero page-hero--shop">
+<section class="page-hero page-hero--shop page-hero--goat">
   <div class="wrap page-hero__grid">
+    <div class="page-hero__text">
     <p class="section-index"><span class="num">&#8224;</span><span>{{kicker}}</span></p>
-    <h1 class="page-hero__title display" data-scramble>{{heading}}</h1>
+    <h1 class="page-hero__title display">{{heading}}</h1>
     <p class="page-hero__meta" data-result-count aria-live="polite"></p>
     {{{collectionIntro}}}
+    </div>
+    <div class="page-hero__goat" aria-hidden="true">{{{goatSm}}}</div>
   </div>
 </section>
 <section class="shop wrap" data-shop data-collection="{{collectionHandle}}">
@@ -32,4 +35,8 @@
       <nav class="pagination" data-pagination aria-label="Pages"></nav>
     </div>
   </div>
+</section>
+<section class="wrap related related--shop" data-recent hidden aria-labelledby="recent-title">
+  <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>Your trail</span></p><h2 class="section-head__title display" id="recent-title">Recently viewed</h2></header>
+  <div class="products-grid products-grid--small" data-recent-grid></div>
 </section>
