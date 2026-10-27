@@ -1,8 +1,11 @@
-<section class="page-hero">
+<section class="page-hero page-hero--goat">
   <div class="wrap page-hero__grid">
+    <div class="page-hero__text">
     <p class="section-index"><span class="num">&#8224;</span><span>Contact</span></p>
-    <h1 class="page-hero__title display" data-scramble>Speak, and be heard</h1>
+    <h1 class="page-hero__title display">Speak, and be heard</h1>
     <p class="page-hero__lede">Orders, sizes, payments, collaborations. WhatsApp is the fastest way to reach us.</p>
+    </div>
+    <div class="page-hero__goat" aria-hidden="true">{{{goatSm}}}</div>
   </div>
 </section>
 <section class="wrap contact">
@@ -17,7 +20,7 @@
     <label class="field"><span>Your name</span><input name="name" autocomplete="name" maxlength="80" required></label>
     <label class="field"><span>Order number (if any)</span><input name="order" maxlength="20"></label>
     <label class="field"><span>Message</span><textarea name="message" rows="5" maxlength="1000" required></textarea></label>
-    <button class="btn btn--blood" type="submit" data-magnetic><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Open WhatsApp</span></button>
+    <button class="btn btn--blood" type="submit"><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Open WhatsApp</span></button>
     <p class="form-msg" data-form-msg role="status"></p>
   </form>
 </section>
