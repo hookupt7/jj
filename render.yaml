@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: eos-enemy-of-swag
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: SHOPIFY_STORE_DOMAIN
+        sync: false
+      - key: SHOPIFY_API_VERSION
+        sync: false # set to 2026-10
+      # Dev Dashboard app "EOS Site" credentials; the server mints Admin API tokens itself
+      - key: SHOPIFY_CLIENT_ID
+        sync: false
+      - key: SHOPIFY_CLIENT_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: WHATSAPP_NUMBER
+        value: "2349122318512"
+      # draft_order (WhatsApp confirmation) or shopify (real Shopify checkout)
+      - key: CHECKOUT_MODE
+        value: draft_order
