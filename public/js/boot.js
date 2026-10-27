@@ -1,14 +1,14 @@
-/* Runs before first paint: sets motion/ambience/preloader state classes. No inline scripts (CSP). */
+/* Runs before first paint: sets motion/preloader state classes. No inline scripts (CSP).
+   Motion follows the visitor's system setting (prefers-reduced-motion) only. */
 (function () {
   var d = document.documentElement;
   d.classList.remove('no-js');
   d.classList.add('js');
   var reduce = false;
+  try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* old browser */ }
   try {
-    var m = localStorage.getItem('eos:motion');
-    reduce = m ? m === 'off' : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (m === 'on') d.classList.add('motion-forced');
-    d.setAttribute('data-ambience', localStorage.getItem('eos:ambience') || 'lit');
+    // Retired toggles from the first version: clear them so nobody stays stuck on "motion off".
+    localStorage.removeItem('eos:motion'); localStorage.removeItem('eos:ambience');
     var first = !sessionStorage.getItem('eos:seen');
     if (first && !reduce) d.classList.add('is-first');
     else if (sessionStorage.getItem('eos:leaving')) { d.classList.add('is-entering'); }
