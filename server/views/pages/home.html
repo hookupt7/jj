@@ -1,0 +1,124 @@
+<section class="hero" data-hero aria-label="EOS">
+  <div class="hero__media" aria-hidden="true">
+    <video class="hero__video" data-hero-video autoplay muted loop playsinline preload="auto" poster="/media/eos-film-poster.jpg" width="720" height="720">
+      <source src="/media/eos-film.mp4" type="video/mp4">
+    </video>
+    <div class="hero__tint"></div>
+    <div class="hero__scan"></div>
+    <div class="hero__vignette"></div>
+    <canvas class="hero__embers" data-embers></canvas>
+  </div>
+  <div class="hero__content">
+    <div class="hero__mark" data-parallax="0.08"><img src="/img/eos-sigil.webp" alt="" width="260" height="655" fetchpriority="high"></div>
+    <div class="hero__text">
+      <p class="eyebrow hero__eyebrow"><span class="rule"></span>{{hero.eyebrow}}</p>
+      <h1 class="hero__title" aria-label="{{hero.title}}">{{{heroTitleLines}}}</h1>
+      <p class="hero__sub">{{hero.subtitle}}</p>
+      <a class="btn btn--ghost hero__cta" href="{{hero.ctaLink}}" data-magnetic><span>{{hero.ctaLabel}}</span><svg class="btn__arrow"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+  <a class="hero__scroll" href="#manifesto"><span>Scroll</span><i></i></a>
+  <ol class="hero__index" aria-hidden="true"><li class="is-on">01</li><li>02</li><li>03</li><li>04</li><li>05</li></ol>
+  <p class="hero__coords" aria-hidden="true">Made in Nigeria<br>Worn everywhere</p>
+</section>
+
+<!--#section marquee-->
+<div class="marquee" aria-hidden="true"><div class="marquee__track" data-marquee>{{{marqueeLine}}}</div></div>
+<!--/section marquee-->
+
+<!--#section manifesto-->
+<section class="manifesto" id="manifesto" aria-labelledby="manifesto-title">
+  <div class="manifesto__mandala" data-parallax="-0.12" aria-hidden="true">{{{mandala}}}</div>
+  <div class="wrap manifesto__grid">
+    <p class="section-index" data-reveal><span class="num">I</span><span>Manifesto</span></p>
+    <h2 class="manifesto__title display" id="manifesto-title" data-scramble data-reveal>THE WORLD WAS NEVER YOUR UNIFORM.</h2>
+    <div class="manifesto__body" data-reveal>
+      <p class="lede">Streetwear for the ones who were never interested in being understood.</p>
+      <p>Not a trend report. Not a permission slip. EOS exists for people who build their own language and dress accordingly.</p>
+    </div>
+    <ol class="tenets" data-reveal-stagger>
+      <li><span class="tenets__n">i.</span><strong>Not for the weak.</strong><span>Loud graphics, sharp lines, no apologies.</span></li>
+      <li><span class="tenets__n">ii.</span><strong>Not a brand, a curse.</strong><span>Once it is on you, it does not come off quietly.</span></li>
+      <li><span class="tenets__n">iii.</span><strong>Some love is cursed.</strong><span>We make it for the ones who love it anyway.</span></li>
+    </ol>
+    <p class="manifesto__sig display" data-reveal>BEING DIFFERENT<br><em>is the point.</em></p>
+  </div>
+</section>
+<!--/section manifesto-->
+
+<!--#section drop-->
+<section class="drop" data-drop hidden aria-labelledby="drop-title">
+  <div class="wrap drop__grid">
+    <p class="section-index"><span class="num">&#8224;</span><span>Next drop</span></p>
+    <h2 class="drop__title display" id="drop-title" data-drop-title></h2>
+    <div class="countdown" data-countdown role="timer" aria-live="off"></div>
+    <p class="drop__note" data-drop-note></p>
+    <a class="btn btn--ghost" data-drop-link href="/shop" data-magnetic><span>Be ready</span><svg class="btn__arrow"><use href="#i-arrow"/></svg></a>
+  </div>
+</section>
+<!--/section drop-->
+
+<!--#section featured-->
+<section class="featured" aria-labelledby="featured-title">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="section-index"><span class="num">II</span><span>The offering</span></p>
+      <h2 class="section-head__title display" id="featured-title" data-scramble>{{featured.title}}</h2>
+      <a class="link-arrow" href="/shop">Enter the shop <svg><use href="#i-arrow"/></svg></a>
+    </header>
+    <div class="products-grid products-grid--featured" data-featured aria-busy="true"></div>
+  </div>
+</section>
+<!--/section featured-->
+
+<!--#section collections-->
+<section class="home-collections" data-home-collections hidden aria-labelledby="hc-title">
+  <div class="wrap">
+    <header class="section-head">
+      <p class="section-index"><span class="num">III</span><span>Collections</span></p>
+      <h2 class="section-head__title display" id="hc-title">Choose your affliction</h2>
+      <a class="link-arrow" href="/collections">All collections <svg><use href="#i-arrow"/></svg></a>
+    </header>
+    <div class="collection-rail" data-collections-rail></div>
+  </div>
+</section>
+<!--/section collections-->
+
+<!--#section film-->
+<section class="film" aria-labelledby="film-title">
+  <div class="film__frame" data-film>
+    <video class="film__video" data-film-video muted loop playsinline preload="none" poster="/media/eos-film-poster.jpg" width="720" height="720">
+      <source src="/media/eos-film.mp4" type="video/mp4">
+    </video>
+    <div class="hero__tint"></div><div class="hero__vignette"></div>
+    <div class="film__bars" aria-hidden="true"></div>
+  </div>
+  <div class="film__copy wrap">
+    <p class="section-index"><span class="num">IV</span><span>The film</span></p>
+    <h2 class="film__title display" id="film-title" data-scramble>Watch the film</h2>
+    <p class="film__line">She looked into the mirror. Something looked back.</p>
+    <button class="btn btn--blood" type="button" data-film-play data-magnetic><svg class="btn__icon"><use href="#i-play"/></svg><span>Play with sound</span></button>
+    <p class="film__meta"><span>EOS</span><span>00:15</span><span>Some love is cursed</span></p>
+  </div>
+</section>
+<!--/section film-->
+
+<!--#section newsletter-->
+<section class="cult" aria-labelledby="cult-title">
+  <div class="cult__glow" aria-hidden="true"></div>
+  <div class="wrap cult__grid">
+    <div class="cult__crown" aria-hidden="true">{{{horns}}}</div>
+    <p class="section-index"><span class="num">V</span><span>The circle</span></p>
+    <h2 class="cult__title display" id="cult-title" data-scramble>Join the cult</h2>
+    <p class="cult__copy">First word on drops, restocks and the things we only tell our own. No noise. Leave whenever you want.</p>
+    <form class="cult__form" data-newsletter novalidate>
+      <label class="sr" for="cult-email">Email address</label>
+      <input id="cult-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Your email" required maxlength="254">
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn btn--blood" type="submit" data-magnetic><span>Swear in</span></button>
+      <p class="form-msg" data-form-msg role="status"></p>
+    </form>
+    <div class="candles" aria-hidden="true"><i class="candle"><b></b></i><i class="candle candle--tall"><b></b></i><i class="candle"><b></b></i></div>
+  </div>
+</section>
+<!--/section newsletter-->
