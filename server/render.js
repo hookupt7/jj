@@ -4,6 +4,7 @@ const path = require('node:path');
 const config = require('./config');
 const settings = require('./settings');
 const svg = require('./views/svg');
+const { goatMan } = require('./views/goat');
 const { esc } = require('./lib/html');
 const { STATES } = require('./lib/nigeria');
 
@@ -26,16 +27,13 @@ function fill(str, data) {
     .replace(/\{\{\s*([\w.]+)\s*\}\}/g, (m, k) => esc(get(data, k) ?? ''));
 }
 
-const LINES = ['Not for the weak', 'Not a brand, a curse', 'Some love is cursed', 'Kill or be killed', 'Join the cult', 'Not made to fit in', 'Being different is the point'];
-const marqueeLine = () => {
-  const one = LINES.map((l) => `<span>${esc(l)}</span><svg class="marquee__sep"><use href="#i-penta"/></svg>`).join('');
-  return `<div class="marquee__group">${one}</div><div class="marquee__group">${one}</div>`;
-};
-
 const ngn = (n) => `\u20A6${Number(n).toLocaleString('en-NG', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 const shared = (() => {
   let c = null;
-  return () => c || (c = { mandala: svg.mandala({ id: 'mp' }), mandalaSmall: svg.mandala({ size: 400, id: 'ms' }), horns: svg.horns(), sigilLine: svg.sigilLine(), marqueeLine: marqueeLine() });
+  return () => c || (c = {
+    mandala: svg.mandala({ id: 'mp' }), mandalaSmall: svg.mandala({ size: 400, id: 'ms' }), horns: svg.horns(), sigilLine: svg.sigilLine(),
+    goatLg: goatMan({ id: 'gml', variant: 'lg' }), goatSm: goatMan({ id: 'gms', variant: 'sm' }),
+  });
 })();
 
 function baseUrl(req) {
@@ -55,7 +53,9 @@ async function render(req, res, page, opts = {}) {
   const data = {
     ...shared(),
     ...c,
-    hero: s.hero, featured: s.featured, sections: s.sections,
+    hero: s.hero, featured: s.featured,
+    // The footer is left off the one-screen home page; every inner page keeps it.
+    sections: { ...s.sections, footer: page !== 'home' },
     year: new Date().getFullYear(),
     ...(opts.data || {}),
   };
