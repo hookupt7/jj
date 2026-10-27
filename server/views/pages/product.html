@@ -1,0 +1,21 @@
+<div class="product wrap" data-product="{{handle}}">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">EOS</a><span>/</span><a href="/shop">Shop</a><span>/</span><span data-crumb-title>{{productTitle}}</span></nav>
+  <div class="product__grid">
+    <div class="gallery" data-gallery aria-busy="true">
+      <div class="gallery__thumbs" data-thumbs role="tablist" aria-label="Product images"></div>
+      <div class="gallery__main" data-main-image><div class="gallery__ph"></div></div>
+    </div>
+    <div class="pinfo" data-pinfo>
+      <div class="pinfo__skeleton"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <section class="related" data-related hidden aria-labelledby="related-title">
+    <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>Kindred</span></p><h2 class="section-head__title display" id="related-title">You may also be cursed by</h2></header>
+    <div class="products-grid" data-related-grid></div>
+  </section>
+  <section class="related" data-recent hidden aria-labelledby="recent-title">
+    <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>Your trail</span></p><h2 class="section-head__title display" id="recent-title">Recently viewed</h2></header>
+    <div class="products-grid products-grid--small" data-recent-grid></div>
+  </section>
+</div>
+<div class="sticky-buy" data-sticky-buy hidden><span data-sticky-title></span><span data-sticky-price></span><button class="btn btn--blood" type="button" data-sticky-add>Add to cart</button></div>
