@@ -14,7 +14,7 @@ const tryShopify = async (fn) => { try { return await fn(); } catch (_) { return
 const titleLines = (t) => {
   const words = String(t).trim().split(/\s+/);
   const lines = words.length >= 3 ? [words[0], words.slice(1).join(' ')] : words;
-  return lines.map((l, i) => `<span class="hero__line hero__line--${i + 1}" aria-hidden="true"><span data-scramble>${esc(l)}</span></span>`).join('');
+  return lines.map((l, i) => `<span class="hero__line hero__line--${i + 1}" aria-hidden="true"><span>${esc(l)}</span></span>`).join('');
 };
 
 router.get('/', safe(async (req, res) => {
@@ -73,8 +73,14 @@ router.get('/product/:handle', safe(async (req, res, next) => {
   });
 }));
 
-router.get('/lookbook', safe(async (req, res) => render(req, res, 'lookbook', { title: 'Lookbook' })));
-router.get('/about', safe(async (req, res) => render(req, res, 'about', { title: 'About', description: 'EOS (Enemy of Swag): streetwear from Nigeria. Not a brand, a curse.' })));
+router.get('/lookbook', safe(async (req, res) => render(req, res, 'lookbook', { title: 'Lookbook & film', description: 'The EOS film and lookbook. She looked into the mirror. Something looked back.' })));
+router.get('/about', safe(async (req, res) => render(req, res, 'about', { title: 'About & manifesto', description: 'EOS (Enemy of Swag): streetwear from Nigeria for the ones who were never interested in being understood. The world was never your uniform.' })));
+router.get('/its-us', safe(async (req, res) => render(req, res, 'its-us', { title: "It's Us", description: "IT'S US. The three-eyed one from the EOS acid wash tee. Some love is cursed.", ogImage: `${baseUrl(req)}/img/its-us-detail.jpg` })));
+router.get('/join', safe(async (req, res) => render(req, res, 'join', { title: 'Join the cult', description: 'Join the EOS circle. First word on drops and restocks. No noise. Leave whenever you want.' })));
+// Old home-page anchors and likely guesses land on the pages that now hold that content.
+router.get(['/manifesto'], (req, res) => res.redirect(301, '/about'));
+router.get(['/film'], (req, res) => res.redirect(301, '/lookbook'));
+router.get(['/cult', '/join-the-cult', '/newsletter'], (req, res) => res.redirect(301, '/join'));
 router.get('/contact', safe(async (req, res) => render(req, res, 'contact', { title: 'Contact', description: 'Reach EOS on WhatsApp, phone, email or TikTok.' })));
 
 function shippingSummary(s) {
@@ -104,7 +110,7 @@ router.get('/robots.txt', (req, res) => {
 });
 router.get('/sitemap.xml', safe(async (req, res) => {
   const base = baseUrl(req);
-  const urls = ['/', '/shop', '/collections', '/lookbook', '/about', '/contact', '/faq', '/shipping-returns', '/track', '/privacy', '/terms'];
+  const urls = ['/', '/shop', '/collections', '/lookbook', '/about', '/its-us', '/join', '/contact', '/faq', '/shipping-returns', '/track', '/privacy', '/terms'];
   if (config.shopify.configured) {
     const [ps, cs] = await Promise.all([tryShopify(() => catalog.allProducts()), tryShopify(() => catalog.allCollections())]);
     (ps || []).forEach((p) => urls.push(`/product/${p.handle}`));
