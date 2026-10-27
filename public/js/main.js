@@ -10,6 +10,7 @@ const PAGES = {
   product: () => import('./pages/product.js'),
   collections: () => import('./pages/collections.js'),
   lookbook: () => import('./pages/lookbook.js'),
+  join: () => import('./pages/join.js'),
   checkout: () => import('./pages/checkout.js'),
   success: () => import('./pages/success.js'),
   track: () => import('./pages/track.js'),
@@ -19,8 +20,8 @@ const PAGES = {
 fx.preloader();
 fx.transitions();
 fx.grain();
-fx.cursor();
-fx.toggles();
+fx.autoplayVideos();
+fx.toTop();
 initCart();
 ui.header();
 ui.mobileMenu();
@@ -29,12 +30,9 @@ ui.initModal();
 ui.newsletter();
 ui.waCompose();
 ui.quickAdd();
-fx.scrambles();
-fx.magnetic();
-fx.parallax();
-fx.warpHover();
+ui.quickView();
 
 const page = html.dataset.page;
 (PAGES[page] ? PAGES[page]().then((m) => m.default && m.default()) : Promise.resolve())
   .catch((e) => console.warn('[eos] page script', e))
-  .finally(() => { fx.reveals(); fx.magnetic(); });
+  .finally(() => { fx.reveals(); });
