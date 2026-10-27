@@ -1,0 +1,21 @@
+{
+  "name": "eos-enemy-of-swag",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EOS (Enemy of Swag) storefront and admin. Plain JS + CSS, Node/Express, Shopify Admin GraphQL as the source of truth.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "check": "node --check server/index.js"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "compression": "^1.8.0",
+    "express": "^4.21.2",
+    "multer": "^2.0.2"
+  }
+}
