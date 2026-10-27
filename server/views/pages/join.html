@@ -1,0 +1,30 @@
+<section class="cult" aria-labelledby="cult-title">
+  <div class="cult__glow" aria-hidden="true"></div>
+  <div class="wrap cult__grid">
+    <div class="cult__figure" aria-hidden="true">{{{goatLg}}}</div>
+    <div class="cult__copy">
+      <p class="section-index"><span class="num">&#8224;</span><span>The circle</span></p>
+      <h1 class="cult__title display" id="cult-title">Join the cult</h1>
+      <p class="cult__tag">It&rsquo;s us.</p>
+      <p class="cult__text">First word on drops, restocks and the things we only tell our own. No noise. Leave whenever you want.</p>
+      <form class="cult__form" data-newsletter data-source="join" novalidate>
+        <label class="sr" for="cult-email">Email address</label>
+        <input id="cult-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Your email" required maxlength="254">
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn btn--blood" type="submit"><span>Swear in</span></button>
+        <p class="form-msg" data-form-msg role="status"></p>
+      </form>
+      <p class="cult__alt">Rather talk? <a href="https://wa.me/{{whatsapp}}" target="_blank" rel="noopener">WhatsApp</a> or <a href="{{tiktok}}" target="_blank" rel="noopener">TikTok {{tiktokHandle}}</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="drop" data-drop hidden aria-labelledby="drop-title">
+  <div class="wrap drop__grid">
+    <p class="section-index"><span class="num">&#8224;</span><span>Next drop</span></p>
+    <h2 class="drop__title display" id="drop-title" data-drop-title></h2>
+    <div class="countdown" data-countdown role="timer" aria-live="off"></div>
+    <p class="drop__note" data-drop-note></p>
+    <a class="btn btn--ghost" data-drop-link href="/shop"><span>Be ready</span><svg class="btn__arrow"><use href="#i-arrow"/></svg></a>
+  </div>
+</section>
