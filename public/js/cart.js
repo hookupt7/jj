@@ -114,7 +114,7 @@ export function renderDrawer() {
   if (!body) return;
   updateBadges();
   if (!lines.length) {
-    body.innerHTML = `<div class="drawer__empty"><p>Your cart is empty.<br>The realm is not.</p><a class="btn btn--ghost" href="/shop" data-magnetic><span>Enter the shop</span><svg class="btn__arrow"><use href="#i-arrow"/></svg></a></div>`;
+    body.innerHTML = `<div class="drawer__empty"><p>Your cart is empty.<br>The realm is not.</p><a class="btn btn--ghost" href="/shop"><span>Enter the shop</span><svg class="btn__arrow"><use href="#i-arrow"/></svg></a></div>`;
     foot.innerHTML = '';
     return;
   }
