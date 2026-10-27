@@ -12,14 +12,15 @@ const HANDLE = 'site';
 const DEFAULTS = Object.freeze({
   announcement: { enabled: false, text: '', link: '' },
   hero: {
-    eyebrow: 'Not a brand. A curse.',
+    eyebrow: '',
     title: 'ENEMY OF SWAG',
     subtitle: 'Not made to fit in.',
     ctaLabel: 'Enter the realm',
     ctaLink: '/shop',
   },
-  sections: { marquee: true, manifesto: true, drop: true, featured: true, collections: true, film: true, newsletter: true },
-  featured: { title: 'Chosen pieces', productHandles: [], collectionHandle: '' },
+  // The home page is one full screen (hero only), so it has no optional sections any more.
+  sections: {},
+  featured: { title: 'Featured', productHandles: [], collectionHandle: '' }, // drives the shop's "Featured" order
   drop: { enabled: false, title: 'The next drop', dateISO: null, productHandle: '', note: '' },
   shipping: { lagos: null, southWest: null, other: null, note: 'Delivery anywhere in Nigeria.' },
   payment: {
@@ -38,6 +39,13 @@ const DEFAULTS = Object.freeze({
 });
 
 const clone = (o) => JSON.parse(JSON.stringify(o));
+// Retired brand line: never shown again, even if an older saved setting still holds it.
+const RETIRED = /not a brand|a curse/i;
+function scrub(s) {
+  if (s && s.hero && RETIRED.test(s.hero.eyebrow || '')) s.hero.eyebrow = '';
+  if (s && s.seo && RETIRED.test(s.seo.description || '')) s.seo.description = DEFAULTS.seo.description;
+  return s;
+}
 function merge(base, over) {
   if (!over || typeof over !== 'object' || Array.isArray(over)) return base;
   const out = Array.isArray(base) ? [...base] : { ...base };
@@ -109,7 +117,7 @@ async function get() {
   return cache.wrap('settings', config.settingsCacheSeconds, async () => {
     try {
       const stored = await mo.readJson(TYPE, HANDLE);
-      return merge(clone(DEFAULTS), stored || {});
+      return scrub(merge(clone(DEFAULTS), stored || {}));
     } catch (e) {
       if (!warned) { console.warn('[settings] using defaults:', e.message); warned = true; }
       return clone(DEFAULTS);
@@ -120,7 +128,7 @@ async function get() {
 // Save one section (or several) of settings. Returns the full saved settings.
 async function save(patch) {
   const current = await (async () => { cache.del('settings'); return get(); })();
-  const next = normalise(merge(current, patch));
+  const next = scrub(normalise(merge(current, patch)));
   await mo.writeJson(TYPE, HANDLE, next);
   cache.set('settings', next, config.settingsCacheSeconds);
   return next;
