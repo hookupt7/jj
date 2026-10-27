@@ -1,0 +1,45 @@
+<section class="checkout wrap" data-checkout>
+  <header class="checkout__head">
+    <p class="section-index"><span class="num">&#8224;</span><span>Checkout</span></p>
+    <h1 class="checkout__title display">Seal the pact</h1>
+  </header>
+  <div class="checkout__grid">
+    <form class="checkout__form" data-checkout-form novalidate>
+      <fieldset>
+        <legend><span class="num">i.</span>You</legend>
+        <label class="field"><span>Full name</span><input name="fullName" autocomplete="name" required minlength="3" maxlength="80"></label>
+        <div class="field-row">
+          <label class="field"><span>Phone (WhatsApp)</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0803 000 0000" required maxlength="20"></label>
+          <label class="field"><span>Email</span><input name="email" type="email" inputmode="email" autocomplete="email" required maxlength="254"></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend><span class="num">ii.</span>Delivery</legend>
+        <div class="field-row">
+          <label class="field"><span>State</span><select name="stateCode" required data-states><option value="">Choose your state</option></select></label>
+          <label class="field"><span>City / town</span><input name="city" autocomplete="address-level2" required maxlength="60"></label>
+        </div>
+        <label class="field"><span>Street address</span><input name="address" autocomplete="street-address" required minlength="6" maxlength="200" placeholder="House number, street, area, landmark"></label>
+        <label class="field"><span>Note (optional)</span><textarea name="note" rows="3" maxlength="500" placeholder="Anything we should know"></textarea></label>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </fieldset>
+      <fieldset>
+        <legend><span class="num">iii.</span>Payment</legend>
+        <p class="checkout__pay" data-payment-text></p>
+      </fieldset>
+      <button class="btn btn--blood btn--wide" type="submit" data-place-order><span>Place order</span></button>
+      <p class="form-msg" data-form-msg role="alert"></p>
+    </form>
+    <aside class="summary" aria-label="Order summary">
+      <h2 class="summary__title">Your offering</h2>
+      <div class="summary__items" data-summary-items></div>
+      <form class="summary__code" data-code-form novalidate>
+        <label class="sr" for="discount-code">Discount code</label>
+        <input id="discount-code" name="code" placeholder="Discount code" maxlength="60" autocomplete="off" spellcheck="false">
+        <button class="btn btn--line" type="submit">Apply</button>
+      </form>
+      <p class="form-msg" data-code-msg role="status"></p>
+      <dl class="totals summary__totals" data-summary-totals></dl>
+    </aside>
+  </div>
+</section>
