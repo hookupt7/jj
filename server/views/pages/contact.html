@@ -1,0 +1,23 @@
+<section class="page-hero">
+  <div class="wrap page-hero__grid">
+    <p class="section-index"><span class="num">&#8224;</span><span>Contact</span></p>
+    <h1 class="page-hero__title display" data-scramble>Speak, and be heard</h1>
+    <p class="page-hero__lede">Orders, sizes, payments, collaborations. WhatsApp is the fastest way to reach us.</p>
+  </div>
+</section>
+<section class="wrap contact">
+  <ul class="contact__list">
+    <li><a class="contact__row" href="https://wa.me/{{whatsapp}}" target="_blank" rel="noopener"><svg><use href="#i-whatsapp"/></svg><span class="contact__k">WhatsApp</span><span class="contact__v">{{phoneDisplay}}</span><svg class="contact__go"><use href="#i-arrow"/></svg></a></li>
+    <li><a class="contact__row" href="tel:{{phoneTel}}"><svg><use href="#i-phone"/></svg><span class="contact__k">Phone</span><span class="contact__v">{{phoneDisplay}}</span><svg class="contact__go"><use href="#i-arrow"/></svg></a></li>
+    <li><a class="contact__row" href="mailto:{{email}}"><svg><use href="#i-mail"/></svg><span class="contact__k">Email</span><span class="contact__v">{{email}}</span><svg class="contact__go"><use href="#i-arrow"/></svg></a></li>
+    <li><a class="contact__row" href="{{tiktok}}" target="_blank" rel="noopener"><svg><use href="#i-tiktok"/></svg><span class="contact__k">TikTok</span><span class="contact__v">{{tiktokHandle}}</span><svg class="contact__go"><use href="#i-arrow"/></svg></a></li>
+  </ul>
+  <form class="contact__form" data-wa-compose novalidate>
+    <h2 class="contact__h">Write it here, send it on WhatsApp</h2>
+    <label class="field"><span>Your name</span><input name="name" autocomplete="name" maxlength="80" required></label>
+    <label class="field"><span>Order number (if any)</span><input name="order" maxlength="20"></label>
+    <label class="field"><span>Message</span><textarea name="message" rows="5" maxlength="1000" required></textarea></label>
+    <button class="btn btn--blood" type="submit" data-magnetic><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Open WhatsApp</span></button>
+    <p class="form-msg" data-form-msg role="status"></p>
+  </form>
+</section>
