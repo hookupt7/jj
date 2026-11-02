@@ -1,0 +1,60 @@
+/* EOS polish: scarier, smoother motion and a cleaner finish. Loaded after main.css. */
+:root { --eos-ease: cubic-bezier(0.16, 1, 0.3, 1); }
+::selection { background: var(--blood); color: #fff; }
+html { scrollbar-width: thin; scrollbar-color: var(--blood-lo) var(--ink); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 1px solid var(--blood-hi); outline-offset: 3px; }
+
+/* removed pieces: keep the layouts tidy */
+.page-hero__goat, .lost__goat, .success__goat, .hero__mark, .cult__figure { display: none !important; }
+.page-hero--goat .page-hero__grid { grid-template-columns: 1fr !important; }
+.lost__inner { grid-template-columns: 1fr !important; }
+@media (min-width: 900px) { .site-footer__grid { grid-template-columns: 2.2fr 1fr 1fr 1fr !important; } }
+
+/* heartbeat vignette over the whole site */
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 40;
+  background: radial-gradient(ellipse at center, transparent 58%, rgba(77, 0, 11, 0.6));
+  opacity: 0.4; animation: eosBeat 5.6s ease-in-out infinite; }
+@keyframes eosBeat { 0%, 100% { opacity: 0.3; } 12% { opacity: 0.72; } 20% { opacity: 0.38; } 30% { opacity: 0.82; } 46% { opacity: 0.3; } }
+
+/* headings rise in, hero title flickers like a failing light */
+.display, .page-hero__title { animation: eosRise 1.4s var(--eos-ease) both; }
+@keyframes eosRise { from { opacity: 0; transform: translateY(28px); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
+.hero__title { animation: eosFlicker 9s linear 2.5s infinite; }
+@keyframes eosFlicker { 0%, 92%, 100% { text-shadow: none; opacity: 1; } 93% { text-shadow: 3px 0 var(--blood-hi), -3px 0 rgba(255, 255, 255, 0.4); opacity: 0.85; } 94% { text-shadow: none; opacity: 1; } 96% { text-shadow: -4px 0 var(--blood-hi); opacity: 0.7; } 97% { text-shadow: none; opacity: 1; } }
+
+/* buttons: red light sweeps across on hover */
+.btn { position: relative; overflow: hidden; transition: color 0.4s var(--eos-ease), border-color 0.4s, box-shadow 0.5s var(--eos-ease), transform 0.4s var(--eos-ease); }
+.btn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgba(214, 20, 48, 0.45) 50%, transparent 80%); transform: translateX(-120%); transition: transform 0.9s var(--eos-ease); pointer-events: none; }
+.btn:hover::before { transform: translateX(120%); }
+.btn:hover { box-shadow: 0 0 34px -6px rgba(214, 20, 48, 0.7); transform: translateY(-1px); }
+
+/* product cards: lift, glow, slow image push */
+.card { transition: transform 0.7s var(--eos-ease), box-shadow 0.7s var(--eos-ease); }
+.card:hover { transform: translateY(-6px); box-shadow: 0 22px 60px -24px rgba(176, 0, 26, 0.7); }
+.card__media img { transition: transform 1.4s var(--eos-ease), filter 0.8s; }
+.card:hover .card__media img { transform: scale(1.06); filter: contrast(1.05) saturate(1.1); }
+.link-arrow svg, .btn__arrow { transition: transform 0.5s var(--eos-ease); }
+.link-arrow:hover svg { transform: translateX(6px); }
+
+/* header and page veil feel smoother */
+.site-header { transition: background-color 0.6s var(--eos-ease), border-color 0.6s, transform 0.6s var(--eos-ease); }
+.prose a, .contact a { background: linear-gradient(var(--blood-hi), var(--blood-hi)) 0 100% / 0 1px no-repeat; transition: background-size 0.5s var(--eos-ease); }
+.prose a:hover, .contact a:hover { background-size: 100% 1px; }
+
+/* Join the cult: the portrait is the background */
+.cult { min-height: calc(100vh - var(--header-h)); display: grid; align-items: center; isolation: isolate; }
+.cult::before { content: ""; position: absolute; inset: -4%; z-index: -2;
+  background: url("/img/830A0448-B7A7-42A2-955D-2E096EB971F8.jpeg") center top / cover no-repeat;
+  animation: eosKen 32s ease-in-out infinite alternate; }
+.cult::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 5, 5, 0.45), rgba(5, 5, 5, 0.72) 55%, var(--ink)); }
+@keyframes eosKen { from { transform: scale(1); } to { transform: scale(1.09) translateY(-1.5%); } }
+.cult__glow { z-index: -1; }
+.cult__grid { grid-template-columns: 1fr !important; justify-items: center; text-align: center; }
+.cult__copy { justify-items: center; }
+.cult__title, .cult__tag, .cult__text, .cult__alt { text-shadow: 0 2px 24px rgba(0, 0, 0, 0.85); }
+.cult__form input[type="email"] { background: rgba(5, 5, 5, 0.72); backdrop-filter: blur(6px); }
+
+@media (prefers-reduced-motion: reduce) {
+  body::after, .hero__title, .display, .page-hero__title, .cult::before { animation: none !important; }
+}

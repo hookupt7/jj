@@ -5,7 +5,7 @@
   "description": "EOS (Enemy of Swag) storefront and admin. Plain JS + CSS, Node/Express, Shopify Admin GraphQL as the source of truth.",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js",
+    "start": "node apply-site-edits.js && node server/index.js",
     "dev": "node --watch server/index.js",
     "check": "node --check server/index.js"
   },
