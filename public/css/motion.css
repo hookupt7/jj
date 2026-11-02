@@ -1,0 +1,26 @@
+/* EOS motion + mobile fixes. Loaded after polish.css. */
+.eos-reveal { opacity: 0; transform: translateY(32px); filter: blur(6px); transition: opacity 1s var(--eos-ease), transform 1s var(--eos-ease), filter 1s var(--eos-ease); transition-delay: var(--eos-d, 0ms); }
+.eos-reveal.eos-in { opacity: 1; transform: none; filter: none; }
+
+.site-header.eos-solid { background: rgba(5, 5, 5, 0.86); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.site-header.eos-hide { transform: translateY(-100%); }
+
+#eos-progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 450; pointer-events: none; transform: scaleX(0); transform-origin: left;
+  background: linear-gradient(90deg, var(--blood-lo), var(--blood-hi)); box-shadow: 0 0 12px var(--blood-hi); }
+#eos-glow { position: fixed; left: 0; top: 0; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; pointer-events: none; z-index: 39;
+  background: radial-gradient(circle, rgba(176, 0, 26, 0.16), transparent 65%); opacity: 0; transition: opacity 0.6s; will-change: transform; }
+#eos-glow.on { opacity: 1; }
+
+/* menus and the cart cover the whole screen on phones, including under the browser bar */
+.drawer, .drawer__panel, .mobile-menu, .search, .modal { min-height: 100vh; }
+@supports (height: 100lvh) { .drawer, .drawer__panel, .mobile-menu, .search, .modal { height: 100lvh; } }
+@media (max-width: 700px) {
+  .drawer__panel { width: 100%; border-left: 0; }
+  .drawer__foot { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .mobile-menu { padding-bottom: 84px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eos-reveal { opacity: 1; transform: none; filter: none; transition: none; }
+  #eos-progress, #eos-glow { display: none; }
+}

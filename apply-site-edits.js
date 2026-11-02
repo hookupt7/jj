@@ -26,7 +26,9 @@ edit('server/views/layout.html', (s) => s
   .replace(/[ \t]*<div class="site-footer__col">\s*<h3>Reach us<\/h3>[\s\S]*?<\/div>\n?/, '')
   .replace('<span>Summoning</span>', '<span>Loading</span>')
   .replace(/(<link rel="stylesheet" href="\/css\/main\.css\?v=\{\{v\}\}">)(?!\s*<link rel="stylesheet" href="\/css\/polish)/,
-           '$1\n<link rel="stylesheet" href="/css/polish.css?v={{v}}">'));
+           '$1\n<link rel="stylesheet" href="/css/polish.css?v={{v}}">')
+  .replace(/(<link rel="stylesheet" href="\/css\/polish\.css\?v=\{\{v\}\}">)(?!\s*<link rel="stylesheet" href="\/css\/motion)/,
+           '$1\n<link rel="stylesheet" href="/css/motion.css?v={{v}}">\n<script src="/js/polish.js?v={{v}}" defer></script>'));
 
 for (const f of ['about', 'contact', 'shop', 'lookbook', '404', 'success']) {
   edit(`server/views/pages/${f}.html`, (s) => s.replace(goatDiv, '').replace(' page-hero--goat', ''));
@@ -38,3 +40,15 @@ edit('server/render.js', (s) => s.replace(/goatLg:\s*goatMan\(\{[^}]*\}\),\s*goa
 edit('server/routes/pages.js', (s) => s
   .replace(/router\.get\('\/its-us'[^\n]*\n/, "router.get('/its-us', (req, res) => res.redirect(301, '/'));\n")
   .replace("'/about', '/its-us', '/join'", "'/about', '/join'"));
+
+// "Summoned" wording -> plain, professional copy
+const words = [
+  ['The first drop is being summoned', 'The first drop is coming'],
+  ['Nothing has crossed over yet. When the first pieces arrive they will appear here, and the ones on our list hear first.', 'The first pieces are on their way. When they land they will appear here, and the ones on our list hear first.'],
+  ['The first collection is being summoned. When it crosses over, it will appear here.', 'The first collection is coming. When it lands, it will appear here.'],
+  ['The lookbook is being summoned', 'Coming soon'],
+  ['Frames appear here as soon as the first pieces cross over.', 'Frames appear here as soon as the first pieces land.'],
+];
+for (const f of ['cards.js', 'ui.js', 'pages/collections.js', 'pages/lookbook.js']) {
+  edit(`public/js/${f}`, (s) => words.reduce((acc, [a, b]) => acc.split(a).join(b), s));
+}
