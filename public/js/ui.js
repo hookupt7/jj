@@ -49,7 +49,7 @@ export function search() {
   const box = $('#search'); if (!box) return;
   const input = $('#search-input'); const out = $('[data-search-results]');
   let release = null; let ctrl = null;
-  const quick = `<p class="search__hint">Search by name, type or colour.</p><div class="search__quick"><a href="/shop">Everything</a><a href="/shop?sort=newest">New</a><a href="/collections">Collections</a><a href="/lookbook">Lookbook</a></div>`;
+  const quick = `<p class="search__hint">Search by name, type or colour.</p><div class="search__quick"><a href="/shop">Everything</a><a href="/shop?sort=newest">New</a><a href="/collections">Collections</a></div>`;
   const open = () => { box.hidden = false; box.classList.add('is-open'); lockScroll(true); out.innerHTML = quick; input.value = ''; release = trapFocus(box, close); setTimeout(() => input.focus(), 30); };
   const close = () => { box.hidden = true; box.classList.remove('is-open'); lockScroll(false); if (release) release(); release = null; };
   $$('[data-search-open]').forEach((b) => b.addEventListener('click', open));
@@ -67,7 +67,7 @@ export function search() {
         : `<p class="search__hint">Nothing answers to \u201C${esc(q)}\u201D.</p>${quick.replace('<p class="search__hint">Search by name, type or colour.</p>', '')}`;
     } catch (e) {
       if (e.name === 'AbortError') return;
-      out.innerHTML = notConfigured(e) ? '<p class="search__hint">The first drop is being summoned. Nothing to search yet.</p>' : `<p class="search__hint">${esc(e.message)}</p>`;
+      out.innerHTML = notConfigured(e) ? '<p class="search__hint">The first drop is coming. Nothing to search yet.</p>' : `<p class="search__hint">${esc(e.message)}</p>`;
     }
   }, 220);
   input.addEventListener('input', run);

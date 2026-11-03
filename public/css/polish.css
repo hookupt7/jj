@@ -41,14 +41,11 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 .prose a, .contact a { background: linear-gradient(var(--blood-hi), var(--blood-hi)) 0 100% / 0 1px no-repeat; transition: background-size 0.5s var(--eos-ease); }
 .prose a:hover, .contact a:hover { background-size: 100% 1px; }
 
-/* Join the cult: the portrait is the background */
+/* Join the cult: a plain dark field. The portrait background was removed — the file it
+   pointed at never existed, and the client asked for their clothing photos not to be used here. */
 .cult { min-height: calc(100vh - var(--header-h)); display: grid; align-items: center; isolation: isolate; }
-.cult::before { content: ""; position: absolute; inset: -4%; z-index: -2;
-  background: url("/img/830A0448-B7A7-42A2-955D-2E096EB971F8.jpeg") center top / cover no-repeat;
-  animation: eosKen 32s ease-in-out infinite alternate; }
 .cult::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: linear-gradient(180deg, rgba(5, 5, 5, 0.45), rgba(5, 5, 5, 0.72) 55%, var(--ink)); }
-@keyframes eosKen { from { transform: scale(1); } to { transform: scale(1.09) translateY(-1.5%); } }
+  background: radial-gradient(120% 90% at 50% 0%, rgba(77, 0, 11, 0.55), transparent 60%), linear-gradient(180deg, rgba(5, 5, 5, 0.2), var(--ink)); }
 .cult__glow { z-index: -1; }
 .cult__grid { grid-template-columns: 1fr !important; justify-items: center; text-align: center; }
 .cult__copy { justify-items: center; }
@@ -56,5 +53,5 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 .cult__form input[type="email"] { background: rgba(5, 5, 5, 0.72); backdrop-filter: blur(6px); }
 
 @media (prefers-reduced-motion: reduce) {
-  body::after, .hero__title, .display, .page-hero__title, .cult::before { animation: none !important; }
+  body::after, .hero__title, .display, .page-hero__title { animation: none !important; }
 }

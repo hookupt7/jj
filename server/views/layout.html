@@ -23,6 +23,11 @@
 <link rel="preload" href="/fonts/archivo-latin-b42cd5.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v={{v}}">
 <link rel="stylesheet" href="/css/main.css?v={{v}}">
+<link rel="stylesheet" href="/css/polish.css?v={{v}}">
+<link rel="stylesheet" href="/css/motion.css?v={{v}}">
+<link rel="stylesheet" href="/css/refine.css?v={{v}}">
+<script src="/js/refine.js?v={{v}}" defer></script>
+<script src="/js/polish.js?v={{v}}" defer></script>
 {{{headExtra}}}
 <script src="/js/boot.js?v={{v}}"></script>
 <script type="module" src="/js/main.js?v={{v}}"></script>
@@ -64,7 +69,7 @@
 
 <div class="preloader" id="preloader" aria-hidden="true">
   <div class="preloader__mark">{{{sigilLine}}}<img src="/img/eos-sigil.webp" alt="" width="260" height="655" class="preloader__img" decoding="async"></div>
-  <div class="preloader__meta"><span class="preloader__count" data-count>000</span><span>Summoning</span></div>
+  <div class="preloader__meta"><span class="preloader__count" data-count>000</span><span>Loading</span></div>
 </div>
 <div class="veil" id="veil" aria-hidden="true"><div class="veil__mark">{{{sigilLine}}}</div></div>
 <div class="grain" aria-hidden="true"></div>
@@ -76,8 +81,6 @@
     <button class="icon-btn site-header__menu" type="button" data-menu-open aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><svg><use href="#i-menu"/></svg></button>
     <nav class="site-nav" aria-label="Primary">
       <a href="/shop" data-nav="shop">Shop</a>
-      <a href="/lookbook" data-nav="lookbook">Lookbook</a>
-      <a href="/its-us" data-nav="its-us">It&rsquo;s Us</a>
       <a href="/about" data-nav="about">About</a>
     </nav>
     <a class="site-logo" href="/" aria-label="EOS, Enemy of Swag, home">
@@ -100,14 +103,12 @@
   </div>
   <nav class="mobile-menu__nav" aria-label="Mobile">
     <details class="mm-group"><summary><span>Shop</span><svg><use href="#i-plus"/></svg></summary>
-      <div class="mm-sub" data-mm-types><a href="/shop">Everything</a><a href="/shop?sort=newest">New arrivals</a><a href="/collections">Collections</a></div>
+      <div class="mm-sub" data-mm-types><a href="/shop?sort=newest">New arrivals</a><a href="/collections">Collections</a></div>
     </details>
-    <a href="/lookbook">Lookbook &amp; film</a>
-    <a href="/its-us">It&rsquo;s Us</a>
     <a href="/about">About &amp; manifesto</a>
     <a href="/join">Join the cult</a>
     <details class="mm-group"><summary><span>Help</span><svg><use href="#i-plus"/></svg></summary>
-      <div class="mm-sub"><a href="/track">Track an order</a><a href="/shipping-returns">Shipping &amp; returns</a><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/wishlist">Wishlist</a></div>
+      <div class="mm-sub"><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/wishlist">Wishlist</a></div>
     </details>
   </nav>
   <div class="mobile-menu__foot">
@@ -153,16 +154,9 @@
       <p class="site-footer__word">Enemy<br>of Swag</p>
       <p class="site-footer__line">It&rsquo;s us. Not made to fit in.</p>
     </div>
-    <nav class="site-footer__col" aria-label="Shop links"><h3>Shop</h3><a href="/shop">Everything</a><a href="/collections">Collections</a><a href="/lookbook">Lookbook &amp; film</a><a href="/wishlist">Wishlist</a></nav>
-    <nav class="site-footer__col" aria-label="Brand links"><h3>EOS</h3><a href="/about">About &amp; manifesto</a><a href="/its-us">It&rsquo;s Us</a><a href="/join">Join the cult</a></nav>
-    <nav class="site-footer__col" aria-label="Help links"><h3>Help</h3><a href="/track">Track an order</a><a href="/shipping-returns">Shipping &amp; returns</a><a href="/faq">FAQ</a><a href="/contact">Contact</a></nav>
-    <div class="site-footer__col">
-      <h3>Reach us</h3>
-      <a href="https://wa.me/{{whatsapp}}" target="_blank" rel="noopener">WhatsApp</a>
-      <a href="tel:{{phoneTel}}">{{phoneDisplay}}</a>
-      <a href="mailto:{{email}}">{{email}}</a>
-      <a href="{{tiktok}}" target="_blank" rel="noopener">TikTok {{tiktokHandle}}</a>
-    </div>
+    <nav class="site-footer__col" aria-label="Shop links"><h3>Shop</h3><a href="/collections">Collections</a><a href="/wishlist">Wishlist</a></nav>
+    <nav class="site-footer__col" aria-label="Brand links"><h3>EOS</h3><a href="/about">About &amp; manifesto</a><a href="/join">Join the cult</a></nav>
+    <nav class="site-footer__col" aria-label="Help links"><h3>Help</h3><a href="/faq">FAQ</a><a href="/contact">Contact</a></nav>
   </div>
   <div class="site-footer__base">
     <span>&copy; {{year}} EOS. Made in Nigeria.</span>

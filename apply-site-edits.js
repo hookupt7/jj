@@ -28,18 +28,32 @@ edit('server/views/layout.html', (s) => s
   .replace(/(<link rel="stylesheet" href="\/css\/main\.css\?v=\{\{v\}\}">)(?!\s*<link rel="stylesheet" href="\/css\/polish)/,
            '$1\n<link rel="stylesheet" href="/css/polish.css?v={{v}}">')
   .replace(/(<link rel="stylesheet" href="\/css\/polish\.css\?v=\{\{v\}\}">)(?!\s*<link rel="stylesheet" href="\/css\/motion)/,
-           '$1\n<link rel="stylesheet" href="/css/motion.css?v={{v}}">\n<script src="/js/polish.js?v={{v}}" defer></script>'));
+           '$1\n<link rel="stylesheet" href="/css/motion.css?v={{v}}">\n<script src="/js/polish.js?v={{v}}" defer></script>')
+  .replace(/(<link rel="stylesheet" href="\/css\/motion\.css\?v=\{\{v\}\}">)(?!\s*<link rel="stylesheet" href="\/css\/refine)/,
+           '$1\n<link rel="stylesheet" href="/css/refine.css?v={{v}}">\n<script src="/js/refine.js?v={{v}}" defer></script>'));
 
-for (const f of ['about', 'contact', 'shop', 'lookbook', '404', 'success']) {
+for (const f of ['about', 'contact', 'shop', '404', 'success']) {
   edit(`server/views/pages/${f}.html`, (s) => s.replace(goatDiv, '').replace(' page-hero--goat', ''));
 }
 edit('server/views/pages/about.html', (s) => s.replace(/<section class="itsus-band"[\s\S]*?<\/section>\n?\n?/, ''));
 edit('server/views/pages/home.html', (s) => s.replace(/[ \t]*<img class="hero__mark"[^>]*>\n?/, ''));
 edit('server/views/pages/join.html', (s) => s.replace(/[ \t]*<div class="cult__figure"[^>]*>\{\{\{goatLg\}\}\}<\/div>\n?/, ''));
-edit('server/render.js', (s) => s.replace(/goatLg:\s*goatMan\(\{[^}]*\}\),\s*goatSm:\s*goatMan\(\{[^}]*\}\),?/, ''));
+edit('server/render.js', (s) => s.replace(
+  /^const \{ goatMan \} = require\('\.\/views\/goat'\);\n/m, ''
+));
+
+// "Lookbook" is retired everywhere the customer can see it. The /lookbook route still resolves for old
+// links, but it is no longer linked from the nav, the footer, the search panel or the sitemap.
+edit('public/js/ui.js', (s) => s.replace(
+  '<a href="/collections">Collections</a><a href="/lookbook">Lookbook</a>',
+  '<a href="/collections">Collections</a>'
+));
 edit('server/routes/pages.js', (s) => s
   .replace(/router\.get\('\/its-us'[^\n]*\n/, "router.get('/its-us', (req, res) => res.redirect(301, '/'));\n")
-  .replace("'/about', '/its-us', '/join'", "'/about', '/join'"));
+  .replace("'/about', '/its-us', '/join'", "'/about', '/join'")
+  .replace("router.get('/lookbook', safe(async (req, res) => render(req, res, 'lookbook', { title: 'Lookbook & film', description: 'The EOS film and lookbook. She looked into the mirror. Something looked back.' })));\n", '')
+  .replace("router.get(['/film'], (req, res) => res.redirect(301, '/lookbook'));\n", "router.get(['/lookbook', '/film'], (req, res) => res.redirect(301, '/'));\n")
+  .replace("'/collections', '/lookbook', '/about'", "'/collections', '/about'"));
 
 // "Summoned" wording -> plain, professional copy
 const words = [
@@ -49,6 +63,6 @@ const words = [
   ['The lookbook is being summoned', 'Coming soon'],
   ['Frames appear here as soon as the first pieces cross over.', 'Frames appear here as soon as the first pieces land.'],
 ];
-for (const f of ['cards.js', 'ui.js', 'pages/collections.js', 'pages/lookbook.js']) {
+for (const f of ['cards.js', 'ui.js', 'pages/collections.js']) {
   edit(`public/js/${f}`, (s) => words.reduce((acc, [a, b]) => acc.split(a).join(b), s));
 }

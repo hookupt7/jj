@@ -9,7 +9,6 @@ const PAGES = {
   shop: () => import('./pages/shop.js'),
   product: () => import('./pages/product.js'),
   collections: () => import('./pages/collections.js'),
-  lookbook: () => import('./pages/lookbook.js'),
   join: () => import('./pages/join.js'),
   checkout: () => import('./pages/checkout.js'),
   success: () => import('./pages/success.js'),

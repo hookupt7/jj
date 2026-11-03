@@ -10,7 +10,7 @@ const mandalaSvg = () => {
 };
 export { mandalaSvg };
 
-export function summonState({ title = 'The first drop is being summoned', copy = 'Nothing has crossed over yet. When the first pieces arrive they will appear here, and the ones on our list hear first.', actions = true } = {}) {
+export function summonState({ title = 'The first drop is coming', copy = 'The first pieces are on their way. When they land they will appear here, and the ones on our list hear first.', actions = true } = {}) {
   return `<div class="summon">
     <div class="summon__ring">${mandalaSvg()}</div>
     <div>

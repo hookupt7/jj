@@ -4,7 +4,6 @@ const path = require('node:path');
 const config = require('./config');
 const settings = require('./settings');
 const svg = require('./views/svg');
-const { goatMan } = require('./views/goat');
 const { esc } = require('./lib/html');
 const { STATES } = require('./lib/nigeria');
 
@@ -19,9 +18,41 @@ function tpl(file) {
 }
 
 const get = (obj, key) => key.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
+
+/** Drop (or unwrap) elements guarded by data-if="{{key}}" once the value is known.
+ *  A small balanced-tag scan rather than one greedy regex, so nested elements of the
+ *  same tag name cannot leave a stray closing tag behind. */
+function conditionals(html, data) {
+  const guard = /\sdata-if="\{\{\s*([\w.]+)\s*\}\}"/;
+  for (let pass = 0; pass < 200; pass += 1) {
+    const hit = guard.exec(html);
+    if (!hit) break;
+    const at = hit.index;
+    const start = html.lastIndexOf('<', at);
+    const openEnd = html.indexOf('>', at);
+    const name = start >= 0 ? /^<([a-zA-Z][a-zA-Z0-9-]*)/.exec(html.slice(start)) : null;
+    if (!name || openEnd < 0) { html = html.slice(0, at) + html.slice(at + hit[0].length); continue; }
+    const v = get(data, hit[1]);
+    // Keep the element when the value is meaningful; drop it for undefined, null, '', false or 0.
+    if (v) { html = html.slice(0, at) + html.slice(at + hit[0].length); continue; }
+    const tag = name[1];
+    if (html[openEnd - 1] === '/') { html = html.slice(0, start) + html.slice(openEnd + 1); continue; } // self-closing
+    const re = new RegExp(`<${tag}(?=[\\s/>])|</${tag}\\s*>`, 'gi');
+    re.lastIndex = openEnd + 1;
+    let depth = 1; let end = -1; let m;
+    while ((m = re.exec(html))) { // eslint-disable-line no-cond-assign
+      if (m[0][1] === '/') { depth -= 1; if (!depth) { end = re.lastIndex; break; } } else depth += 1;
+    }
+    html = end === -1
+      ? html.slice(0, start) + html.slice(openEnd + 1)          // unbalanced: drop just the open tag
+      : html.slice(0, start) + html.slice(end);
+  }
+  return html;
+}
+
 /** {{a.b}} escaped, {{{a}}} raw, <!--#section x-->..<!--/section x--> removed when data.sections[x] is false. */
 function fill(str, data) {
-  return str
+  return conditionals(str, data)
     .replace(/<!--#section (\w+)-->([\s\S]*?)<!--\/section \1-->/g, (m, name, body) => (data.sections && data.sections[name] === false ? '' : body))
     .replace(/\{\{\{\s*([\w.]+)\s*\}\}\}/g, (m, k) => { const v = get(data, k); return v == null ? '' : String(v); })
     .replace(/\{\{\s*([\w.]+)\s*\}\}/g, (m, k) => esc(get(data, k) ?? ''));
@@ -32,7 +63,6 @@ const shared = (() => {
   let c = null;
   return () => c || (c = {
     mandala: svg.mandala({ id: 'mp' }), mandalaSmall: svg.mandala({ size: 400, id: 'ms' }), horns: svg.horns(), sigilLine: svg.sigilLine(),
-    goatLg: goatMan({ id: 'gml', variant: 'lg' }), goatSm: goatMan({ id: 'gms', variant: 'sm' }),
   });
 })();
 
@@ -54,8 +84,8 @@ async function render(req, res, page, opts = {}) {
     ...shared(),
     ...c,
     hero: s.hero, featured: s.featured,
-    // The footer is left off the one-screen home page; every inner page keeps it.
-    sections: { ...s.sections, footer: page !== 'home' },
+    // Every page keeps the footer. Stored settings may still opt out explicitly.
+    sections: { footer: true, ...s.sections },
     year: new Date().getFullYear(),
     ...(opts.data || {}),
   };
