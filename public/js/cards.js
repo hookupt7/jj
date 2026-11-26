@@ -2,6 +2,7 @@
 import { esc, ngn, priceRange, imgUrl, srcset } from './core.js';
 import { wishlist } from './cart.js';
 import { productKind } from './kind.js';
+import { stageImg, colourIndex, swatchCss } from './media.js';
 
 const mandalaSvg = () => {
   // Small inline ring (client-side twin of the server mandala, simplified).
@@ -23,41 +24,86 @@ export function summonState({ title = 'The first drop is coming', copy = 'The fi
 }
 
 export function skeletonCards(n = 4) {
-  return Array.from({ length: n }, () => '<div class="card card--skel" aria-hidden="true"><div class="card__media skel"></div><div class="card__body"><span></span><span></span></div></div>').join('');
+  return Array.from({ length: n }, () => '<div class="pc pc--skel" aria-hidden="true"><div class="pc__stage skel"></div><div class="pc__body"><span></span><span></span></div></div>').join('');
 }
 
-const sizeRank = (s) => { const o = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL']; const i = o.indexOf(String(s).toUpperCase()); return i < 0 ? 99 : i; };
-
 export const cardData = new Map();
+
+// Base under the piece: tops hang from a hook, bottoms lie on a surface,
+// footwear/headwear sit on a plinth, bags stand, jewellery rests on a pedestal.
+export function baseHtml(display) {
+  if (display === 'hang') return '<span class="pc__hook" aria-hidden="true"><svg viewBox="0 0 120 60"><path d="M60 4c6 0 10 4 10 9s-4 8-10 10v6M8 54 60 29l52 25" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  if (display === 'flat') return '<span class="pc__surface" aria-hidden="true"></span>';
+  if (display === 'stand') return '<span class="pc__floor" aria-hidden="true"></span>';
+  if (display === 'pedestal') return '<span class="pc__pedestal" aria-hidden="true"><i></i></span>';
+  return '<span class="pc__plinth" aria-hidden="true"><i></i></span>';
+}
+
+export function swatchesHtml(p, { max = 5, attr = 'data-swatch' } = {}) {
+  const cs = p.colours || [];
+  if (cs.length < 2) return '';
+  const shown = cs.slice(0, max);
+  return `<div class="pc__swatches" role="group" aria-label="Colours">${shown.map((c, i) => {
+    const bg = swatchCss(c);
+    return `<button type="button" class="sw${i === 0 ? ' is-on' : ''}" ${attr}="${esc(c)}" data-handle="${esc(p.handle)}" aria-pressed="${i === 0}" aria-label="${esc(c)}" title="${esc(c)}"><i style="${bg ? `background:${bg}` : ''}">${bg ? '' : esc(c.slice(0, 1))}</i></button>`;
+  }).join('')}${cs.length > max ? `<span class="pc__more">+${cs.length - max}</span>` : ''}</div>`;
+}
+
 export function productCard(p, { eager = false, index = 0 } = {}) {
   cardData.set(p.handle, p);
-  const [a, b] = p.images || [];
-  const sizes = '(min-width: 1200px) 24vw, (min-width: 900px) 31vw, 48vw';
-  const imgTag = (img, cls, lazy) => img ? `<img class="${cls}" src="${esc(imgUrl(img.src, 720))}" srcset="${esc(srcset(img.src))}" sizes="${sizes}" alt="${esc(img.alt || p.title)}" ${img.w ? `width="${img.w}" height="${img.h}"` : 'width="800" height="1000"'} loading="${lazy ? 'lazy' : 'eager'}" decoding="async">` : '';
-  const flag = !p.available && !(p.drop && p.drop.preorder) ? '<span class="card__flag card__flag--out">Sold out</span>'
-    : p.drop && p.drop.preorder ? '<span class="card__flag">Pre-order</span>'
-      : p.onSale ? '<span class="card__flag card__flag--sale">Sale</span>' : '';
-  const price = p.compareAt ? `<s>${ngn(p.compareAt)}</s>${ngn(p.price)}` : priceRange(p);
+  const k = productKind(p);
+  const first = (p.colours && p.colours.length) ? colourIndex(p, p.colours[0]) : 0;
+  const img = (p.images || [])[first >= 0 ? first : 0];
+  const flag = !p.available && !(p.drop && p.drop.preorder) ? '<span class="pc__flag pc__flag--out">Sold out</span>'
+    : p.drop && p.drop.preorder ? '<span class="pc__flag">Pre-order</span>'
+      : p.onSale ? '<span class="pc__flag pc__flag--sale">Sale</span>' : '';
+  const price = p.compareAt ? `<s>${ngn(p.compareAt)}</s> ${ngn(p.price)}` : priceRange(p);
   const wished = wishlist.has(p.handle);
-  const quick = p.quick
-    ? `<button type="button" data-quick-add="${esc(p.quick.id)}" data-handle="${esc(p.handle)}" ${p.quick.available || (p.drop && p.drop.preorder) ? '' : 'disabled'}>Add to cart</button>`
-    : (p.sizes && p.sizes.length ? [...p.sizes].sort((x, y) => sizeRank(x) - sizeRank(y)).map((s) => `<a href="/product/${esc(p.handle)}?size=${encodeURIComponent(s)}" aria-label="${esc(p.title)} size ${esc(s)}">${esc(s)}</a>`).join('') : '');
-  const meta = [p.type, p.colours && p.colours.length > 1 ? `${p.colours.length} colours` : (p.colours && p.colours[0]) || ''].filter(Boolean).join(' \u2014 ');
-  const kind = productKind(p);
-  return `<article class="card card--${kind.kind}" data-kind="${kind.kind}" data-reveal style="transition-delay:${(index % 4) * 70}ms">
-    <div class="card__frame">
-      <a class="card__media${a ? '' : ' skel'}" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">
-        ${imgTag(a, 'card__img card__img--1', !eager)}${imgTag(b, 'card__img card__img--2', true)}
+  const ncol = (p.colours || []).length;
+  const meta = [p.type || k.label, ncol > 1 ? `${ncol} colours` : ''].filter(Boolean).join(' \u00B7 ');
+  return `<article class="pc" data-kind="${k.kind}" data-display="${k.display}" data-handle="${esc(p.handle)}" data-reveal style="--i:${index % 4}">
+    <div class="pc__stage">
+      <a class="pc__link" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">
+        <span class="pc__glow" aria-hidden="true"></span>
+        ${baseHtml(k.display)}
+        <span class="pc__obj"><span class="pc__motion">${img ? stageImg(img, { w: 720, sizes: '(min-width:1100px) 25vw, (min-width:700px) 33vw, 50vw', cls: 'pc__img', lazy: !eager, alt: p.title }) : ''}</span></span>
+        <span class="pc__shadow" aria-hidden="true"></span>
       </a>
       ${flag}
-      <button class="icon-btn card__wish${wished ? ' is-on' : ''}" type="button" data-wish="${esc(p.handle)}" aria-pressed="${wished}" aria-label="${wished ? 'Remove from' : 'Save to'} wishlist"><svg><use href="#i-heart"/></svg></button>
-      <button class="card__qv" type="button" data-quick-view="${esc(p.handle)}" aria-label="Quick view: ${esc(p.title)}"><svg><use href="#i-eye"/></svg><span>Quick view</span></button>
-      ${quick ? `<div class="card__quick">${quick}</div>` : ''}
+      <button class="pc__wish${wished ? ' is-on' : ''}" type="button" data-wish="${esc(p.handle)}" aria-pressed="${wished}" aria-label="${wished ? 'Remove from' : 'Save to'} wishlist"><svg><use href="#i-heart"/></svg></button>
+      <button class="pc__qv" type="button" data-quick-view="${esc(p.handle)}" aria-label="Quick view: ${esc(p.title)}"><span>Quick view</span><svg><use href="#i-plus"/></svg></button>
     </div>
-    <div class="card__body">
-      <h3 class="card__title"><a href="/product/${esc(p.handle)}">${esc(p.title)}</a></h3>
-      <span class="card__price">${price}</span>
-      ${meta ? `<span class="card__meta">${esc(meta)}</span>` : ''}
+    <div class="pc__body">
+      <p class="pc__meta">${esc(meta)}</p>
+      <h3 class="pc__title"><a href="/product/${esc(p.handle)}">${esc(p.title)}</a></h3>
+      <p class="pc__price">${price}</p>
+      ${swatchesHtml(p)}
     </div>
   </article>`;
+}
+
+/** Card colour swatches swap the card image without leaving the grid. */
+let swBound = false;
+export function bindCardSwatches() {
+  if (swBound) return; swBound = true;
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-swatch]'); if (!b) return;
+    e.preventDefault();
+    const p = cardData.get(b.dataset.handle); const card = b.closest('.pc'); if (!p || !card) return;
+    const i = colourIndex(p, b.dataset.swatch); const im = p.images[i >= 0 ? i : 0];
+    card.querySelectorAll('[data-swatch]').forEach((x) => { x.classList.toggle('is-on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+    const host = card.querySelector('.pc__motion'); if (!host || !im) return;
+    host.innerHTML = stageImg(im, { w: 720, sizes: '(min-width:1100px) 25vw, (min-width:700px) 33vw, 50vw', cls: 'pc__img is-swap', lazy: false, alt: `${p.title}, ${b.dataset.swatch}` });
+    const link = card.querySelectorAll('a[href^="/product/"]');
+    link.forEach((a) => { a.href = `/product/${p.handle}?colour=${encodeURIComponent(b.dataset.swatch)}`; });
+  });
+}
+
+/** Animations only run while a card is on screen (battery, and smoother scroll). */
+let io = null;
+export function liveCards(root = document) {
+  const cards = root.querySelectorAll('.pc:not([data-live])');
+  if (!('IntersectionObserver' in window)) { cards.forEach((c) => c.classList.add('is-live')); return; }
+  if (!io) io = new IntersectionObserver((ens) => ens.forEach((en) => en.target.classList.toggle('is-live', en.isIntersecting)), { rootMargin: '60px 0px' });
+  cards.forEach((c) => { c.dataset.live = '1'; io.observe(c); });
 }

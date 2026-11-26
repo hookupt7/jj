@@ -1,5 +1,6 @@
 // Cart (localStorage), drawer, wishlist and recently viewed.
 import { $, $$, api, boot, esc, ngn, store, toast, lockScroll, trapFocus, imgUrl } from './core.js';
+import { stageUrl } from './media.js';
 
 const KEY = 'eos:cart:v1';
 const listeners = new Set();
@@ -93,7 +94,7 @@ export function closeDrawer() {
 
 export function lineItemHtml(l, { editable = true } = {}) {
   return `<div class="line-item" data-line="${esc(l.variantId)}">
-    ${l.image ? `<img class="line-item__img" src="${esc(imgUrl(l.image, 240))}" alt="" width="84" height="105" loading="lazy">` : '<div class="line-item__img"></div>'}
+    ${l.image ? `<img class="line-item__img" src="${esc(stageUrl(l.image, 360))}" alt="" width="84" height="105" decoding="async">` : '<div class="line-item__img"></div>'}
     <div>
       <div class="line-item__top"><div><a class="line-item__t" href="/product/${esc(l.handle)}">${esc(l.title)}</a>${l.variantTitle ? `<div class="line-item__v">${esc(l.variantTitle)}</div>` : ''}</div>
       <span class="line-item__p">${ngn(l.price * l.quantity)}</span></div>

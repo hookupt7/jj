@@ -1,6 +1,6 @@
 import { $, api, esc, notConfigured } from '../core.js';
 import { wishlist } from '../cart.js';
-import { productCard, summonState } from '../cards.js';
+import { productCard, summonState, bindCardSwatches, liveCards } from '../cards.js';
 import { reveals } from '../fx.js';
 
 export default async function wishlistPage() {
@@ -13,7 +13,7 @@ export default async function wishlistPage() {
     if (!r.items.length) empty();
     else { grid.innerHTML = r.items.map((p, i) => productCard(p, { index: i })).join(''); meta.textContent = `${r.items.length} piece${r.items.length === 1 ? '' : 's'} saved on this device`; }
   } catch (e) { grid.innerHTML = notConfigured(e) ? summonState() : `<div class="empty"><h2>The realm is quiet</h2><p>${esc(e.message)}</p></div>`; }
-  grid.removeAttribute('aria-busy');
-  grid.addEventListener('click', (e) => { const w = e.target.closest('[data-wish]'); if (w && !wishlist.has(w.dataset.wish)) setTimeout(() => { w.closest('.card').remove(); if (!grid.children.length) empty(); }, 250); });
+  grid.removeAttribute('aria-busy'); bindCardSwatches(); liveCards(grid);
+  grid.addEventListener('click', (e) => { const w = e.target.closest('[data-wish]'); if (w && !wishlist.has(w.dataset.wish)) setTimeout(() => { w.closest('.pc').remove(); if (!grid.children.length) empty(); }, 250); });
   reveals(grid);
 }

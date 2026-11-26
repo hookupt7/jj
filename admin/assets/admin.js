@@ -224,6 +224,13 @@ async function viewDashboard() {
 }
 
 /* ------------------------------ products ------------------------------ */
+// Website controls live in Shopify tags: eos-hidden hides a product from the site,
+// eos-kind:<kind> overrides the category used for its animation and page layout.
+const SITE_KINDS = [['', 'Automatic (from type and title)'], ['tee', 'Tee'], ['hoodie', 'Hoodie'], ['jacket', 'Jacket / outerwear'], ['shirt', 'Shirt'], ['pants', 'Pants / joggers'], ['shorts', 'Shorts / jorts'], ['slide', 'Slides / sandals'], ['sneaker', 'Sneakers / shoes'], ['hat', 'Hat / cap'], ['beanie', 'Beanie'], ['bag', 'Bag'], ['chain', 'Chain / necklace'], ['ring', 'Ring'], ['sock', 'Socks'], ['glove', 'Gloves'], ['mask', 'Mask / balaclava'], ['accessory', 'Accessory'], ['default', 'Other']];
+const isHiddenTag = (t) => /^eos-hidden$/i.test(t);
+const isKindTag = (t) => /^eos-kind:/i.test(t);
+const siteHidden = (tags) => (tags || []).some(isHiddenTag);
+const siteKind = (tags) => ((tags || []).find(isKindTag) || '').slice(9).toLowerCase();
 async function viewProducts() {
   const v = V();
   if (needsShopify()) { v.innerHTML = header('Products') + connectPanel(); return; }
@@ -231,7 +238,7 @@ async function viewProducts() {
   let q = qs.get('q') || ''; let status = qs.get('status') || ''; let after = null; let items = [];
   v.innerHTML = header('Products', 'Everything here is your Shopify catalogue.', `<button class="btn" data-bulk disabled>Bulk price</button><a class="btn btn--red" href="#/products/new">${I.plus}Add product</a>`) + `
     <div class="card"><div class="toolbar"><input class="input" type="search" placeholder="Search title, tag or type" value="${esc(q)}" data-q><select class="input" data-status><option value="">All statuses</option><option value="active">Active</option><option value="draft">Draft</option><option value="archived">Archived</option></select></div>
-    <div class="table-wrap"><table class="t"><thead><tr><th><input type="checkbox" data-all aria-label="Select all"></th><th>Product</th><th>Status</th><th class="hide-sm">Type</th><th class="num">Stock</th><th class="num">Price</th><th></th></tr></thead><tbody data-rows></tbody></table></div>
+    <div class="table-wrap"><table class="t"><thead><tr><th><input type="checkbox" data-all aria-label="Select all"></th><th>Product</th><th>Status</th><th class="hide-sm">Type</th><th class="num">Stock</th><th class="num">Price</th><th>On site</th><th></th></tr></thead><tbody data-rows></tbody></table></div>
     <div class="pager" data-more></div></div>`;
   $('[data-status]', v).value = status;
   const rows = $('[data-rows]', v);
@@ -241,19 +248,30 @@ async function viewProducts() {
     <td>${chip(p.status.toLowerCase(), p.status)}</td><td class="hide-sm">${esc(p.type || '\u2014')}</td>
     <td class="num">${p.inventory === null ? '<span class="muted">untracked</span>' : p.inventory <= (state.settings ? state.settings.inventory.lowStockThreshold : 3) ? `<span class="chip chip--low">${p.inventory}</span>` : p.inventory}</td>
     <td class="num">${p.compareAt ? `<s class="muted">${ngn(p.compareAt)}</s> ` : ''}${p.minPrice === p.maxPrice ? ngn(p.minPrice) : `${ngn(p.minPrice)}\u2013${ngn(p.maxPrice)}`}</td>
+    <td><label class="switch switch--row" title="Show this product on the website"><input type="checkbox" data-site value="${esc(p.id)}" ${siteHidden(p.tags) ? '' : 'checked'}><i></i><span data-site-label>${siteHidden(p.tags) ? 'Hidden' : 'Shown'}</span></label></td>
     <td class="num"><button class="btn btn--sm" data-prices>Prices</button></td></tr>`;
   const load = async (append = false) => {
-    if (!append) { rows.innerHTML = '<tr><td colspan="7"><div class="skel"></div></td></tr>'; after = null; items = []; }
+    if (!append) { rows.innerHTML = '<tr><td colspan="8"><div class="skel"></div></td></tr>'; after = null; items = []; }
     const r = await api(`/products?${new URLSearchParams({ q, status, ...(after ? { after } : {}) })}`);
     items = append ? items.concat(r.items) : r.items;
     after = r.pageInfo.hasNextPage ? r.pageInfo.endCursor : null;
-    rows.innerHTML = items.length ? items.map(rowHtml).join('') : `<tr class="empty-row"><td colspan="7">${q || status ? 'No product matches.' : 'No products yet. <a href="#/products/new">Add the first one</a>.'}</td></tr>`;
+    rows.innerHTML = items.length ? items.map(rowHtml).join('') : `<tr class="empty-row"><td colspan="8">${q || status ? 'No product matches.' : 'No products yet. <a href="#/products/new">Add the first one</a>.'}</td></tr>`;
     $('[data-more]', v).innerHTML = after ? '<button class="btn" data-load-more>Load more</button>' : '';
   };
   const upd = () => { $('[data-bulk]', v).disabled = !selected.size; $('[data-bulk]', v).textContent = selected.size ? `Bulk price (${selected.size})` : 'Bulk price'; };
   let t; $('[data-q]', v).addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { q = e.target.value.trim(); load().catch(fail); }, 300); });
   $('[data-status]', v).addEventListener('change', (e) => { status = e.target.value; load().catch(fail); });
-  v.addEventListener('change', (e) => {
+  v.addEventListener('change', async (e) => {
+    if (e.target.matches('[data-site]')) {
+      const box = e.target; const on = box.checked; box.disabled = true;
+      try {
+        const r = await api(`/products/${num(box.value)}/site`, { method: 'PATCH', body: { visible: on } });
+        const it = items.find((x) => x.id === box.value); if (it) it.tags = r.product.tags;
+        box.closest('label').querySelector('[data-site-label]').textContent = on ? 'Shown' : 'Hidden';
+        toast(on ? 'Shown on the site' : 'Hidden from the site');
+      } catch (err) { box.checked = !on; fail(err); } finally { box.disabled = false; }
+      return;
+    }
     if (e.target.matches('[data-sel]')) { if (e.target.checked) selected.add(e.target.value); else selected.delete(e.target.value); upd(); }
     if (e.target.matches('[data-all]')) { $$('[data-sel]', v).forEach((c) => { c.checked = e.target.checked; if (c.checked) selected.add(c.value); else selected.delete(c.value); }); upd(); }
   });
@@ -329,8 +347,8 @@ async function viewProduct(id) {
       <div class="card"><div class="card__h"><h2>Basics</h2></div>
         <label class="field"><span>Title</span><input name="title" required maxlength="255" value="${esc(P.title)}"></label>
         <label class="field"><span>Description</span><textarea name="descriptionHtml" rows="7" placeholder="Fabric, fit, print, care. Plain text is fine: blank lines become paragraphs.">${esc(htmlToText(P.descriptionHtml))}</textarea></label>
-        <div class="row row--2"><label class="field"><span>Type / category</span><input name="type" list="types" maxlength="80" value="${esc(P.type)}" placeholder="e.g. T-Shirt"><datalist id="types"><option value="T-Shirt"><option value="Hoodie"><option value="Cropped Tee"><option value="Pants"><option value="Accessory"></datalist></label>
-        <label class="field"><span>Tags</span><input name="tags" value="${esc(P.tags.join(', '))}" placeholder="comma separated"></label></div>
+        <div class="row row--2"><label class="field"><span>Type / category</span><input name="type" list="types" maxlength="80" value="${esc(P.type)}" placeholder="e.g. T-Shirt"><datalist id="types"><option value="T-Shirt"><option value="Hoodie"><option value="Jacket"><option value="Shirt"><option value="Joggers"><option value="Shorts"><option value="Slides"><option value="Sneakers"><option value="Hat"><option value="Beanie"><option value="Bag"><option value="Chain"><option value="Ring"><option value="Socks"><option value="Gloves"><option value="Mask"><option value="Accessory"></datalist></label>
+        <label class="field"><span>Tags</span><input name="tags" value="${esc(P.tags.filter((t) => !isHiddenTag(t) && !isKindTag(t)).join(', '))}" placeholder="comma separated"></label></div>
       </div>
       <div class="card"><div class="card__h"><h2>Images</h2>${isNew ? '<span class="muted" style="font-size:12px">Uploaded right after the product is created</span>' : '<span class="muted" style="font-size:12px">Drag to reorder. First image is the cover.</span>'}</div>
         <div class="media" data-media>${P.media.map((m, i) => `<div class="media__item" draggable="true" data-mid="${esc(m.id)}">${m.url ? `<img src="${esc(sz(m.url, 300))}" alt="${esc(m.alt || '')}">` : '<div class="skel" style="height:100%"></div>'}<span class="n">${i + 1}</span><button type="button" class="x" data-del-media aria-label="Delete image">${I.x}</button></div>`).join('')}
@@ -354,6 +372,12 @@ async function viewProduct(id) {
     <div>
       <div class="card"><div class="card__h"><h2>Status</h2></div>
         <label class="field"><span>Visibility</span><select name="status"><option value="ACTIVE">Active: live on the site</option><option value="DRAFT">Draft: hidden</option><option value="ARCHIVED">Archived</option></select></label>
+      </div>
+      <div class="card"><div class="card__h"><h2>On the website</h2></div>
+        <div class="switches">${sw('siteVisible', !siteHidden(P.tags), 'Show on site')}</div>
+        <p class="muted" style="font-size:12px;margin:8px 0 14px">Off keeps the product in Shopify but removes it from the shop, collections, search and its page.</p>
+        <label class="field"><span>Category (animation and page layout)</span><select name="siteKind">${SITE_KINDS.map(([k, l]) => `<option value="${k}" ${siteKind(P.tags) === k ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>
+        <p class="muted" style="font-size:12px;margin:0">Automatic reads the product type and title. Pick one only if the product shows with the wrong layout.</p>
       </div>
       <div class="card"><div class="card__h"><h2>Collections</h2></div>
         ${cols.length ? `<div class="switches">${cols.filter((c) => !c.smart).map((c) => `<label class="switch"><input type="checkbox" name="col" value="${esc(c.id)}" ${P.collections.some((x) => x.id === c.id) ? 'checked' : ''}><i></i><span>${esc(c.title)}</span></label>`).join('')}</div>` : '<p class="muted">No collections yet. <a href="#/collections/new">Create one</a>.</p>'}
@@ -467,7 +491,8 @@ async function viewProduct(id) {
     e.preventDefault();
     if (!f.title.value.trim()) { toast('A title is required.', true); f.title.focus(); return; }
     const body = {
-      title: f.title.value.trim(), descriptionHtml: toHtml(f.descriptionHtml.value), type: f.type.value.trim(), tags: f.tags.value,
+      title: f.title.value.trim(), descriptionHtml: toHtml(f.descriptionHtml.value), type: f.type.value.trim(),
+      tags: [...f.tags.value.split(',').map((t) => t.trim()).filter((t) => t && !isHiddenTag(t) && !isKindTag(t)), ...(f.siteVisible.checked ? [] : ['eos-hidden']), ...(f.siteKind.value ? [`eos-kind:${f.siteKind.value}`] : [])].join(', '),
       status: f.status.value, seo: { title: f.seoTitle.value.trim(), description: f.seoDescription.value.trim() },
       collectionIds: $$('[name="col"]:checked', f).map((x) => x.value),
       drop: { preorder: f.preorder.checked, dropAt: fromWat(f.dropAt.value), note: f.dropNote.value.trim() },

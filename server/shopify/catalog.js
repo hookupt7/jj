@@ -17,6 +17,7 @@ const PRODUCT_FIELDS = `
     id title price compareAtPrice availableForSale inventoryQuantity inventoryPolicy
     selectedOptions { name value }
     inventoryItem { tracked }
+    media(first: 1) { nodes { ... on MediaImage { image { url } } } }
   } }
   collections(first: 8) { nodes { handle title } }
   drop: metafield(namespace: "eos", key: "drop") { value }
@@ -35,6 +36,29 @@ function parseDrop(raw) {
   } catch (_) { return { preorder: false, dropAt: null }; }
 }
 
+// Colour value -> index of its image. Variant media wins; otherwise the image
+// whose alt text starts with the colour, or whose file name carries it.
+const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+const reEsc = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function colourImageMap(colourOpt, variants, images) {
+  const out = {};
+  const base = (u) => String(u || '').split('?')[0];
+  colourOpt.values.forEach((c) => {
+    const v = variants.find((x) => x.options[colourOpt.name] === c && x.image);
+    let i = v ? images.findIndex((im) => base(im.src) === base(v.image)) : -1;
+    if (i < 0) {
+      const re = new RegExp(`^${reEsc(c.trim())}(?![\\w/])`, 'i');
+      i = images.findIndex((im) => re.test(String(im.alt || '').trim()));
+    }
+    if (i < 0) {
+      const s = slug(c);
+      i = images.findIndex((im) => { const f = base(im.src).split('/').pop().toLowerCase().replace(/\.[a-z]+$/, ''); return f.split(/[-_]/).some((part) => part === s); });
+    }
+    if (i >= 0) out[c] = i;
+  });
+  return out;
+}
+
 function mapProduct(p) {
   const variants = p.variants.nodes.map((vr) => {
     const opts = Object.fromEntries(vr.selectedOptions.map((o) => [o.name, o.value]));
@@ -47,6 +71,7 @@ function mapProduct(p) {
       available: Boolean(vr.availableForSale),
       stock: tracked ? Math.max(0, vr.inventoryQuantity || 0) : null,
       options: opts,
+      image: (vr.media && vr.media.nodes && vr.media.nodes[0] && vr.media.nodes[0].image && vr.media.nodes[0].image.url) || null,
     };
   });
   const images = p.media.nodes.filter((m) => m && m.image).map((m) => ({
@@ -62,6 +87,7 @@ function mapProduct(p) {
   const compareAt = variants.reduce((m, x) => (x.compareAt && x.compareAt > m ? x.compareAt : m), 0) || null;
   const totalStock = variants.every((x) => x.stock === null) ? null : variants.reduce((s, x) => s + (x.stock || 0), 0);
   const drop = parseDrop(p.drop && p.drop.value);
+  const colourImages = colourOpt ? colourImageMap(colourOpt, variants, images) : {};
   return {
     id: numericId(p.id),
     gid: p.id,
@@ -70,7 +96,9 @@ function mapProduct(p) {
     descriptionHtml: sanitize(p.descriptionHtml),
     excerpt: stripTags(p.descriptionHtml).slice(0, 220),
     type: p.productType || '',
-    tags: p.tags || [],
+    tags: (p.tags || []).filter((t) => !/^eos-(hidden|kind:)/i.test(t)),
+    hidden: (p.tags || []).some((t) => /^eos-hidden$/i.test(t)),
+    kind: ((p.tags || []).find((t) => /^eos-kind:/i.test(t)) || '').slice(9).toLowerCase() || null,
     createdAt: p.createdAt,
     price, maxPrice,
     compareAt: compareAt && compareAt > price ? compareAt : null,
@@ -81,6 +109,7 @@ function mapProduct(p) {
     options,
     sizes: sizeOpt ? [...sizeOpt.values].sort((a, b) => sizeRank(a) - sizeRank(b)) : [],
     colours: colourOpt ? colourOpt.values : [],
+    colourImages,
     variants,
     collections: p.collections.nodes.map((c) => c.handle),
     seo: { title: (p.seo && p.seo.title) || '', description: (p.seo && p.seo.description) || '' },
@@ -97,7 +126,8 @@ async function allProducts() {
         nodes { ${PRODUCT_FIELDS} } pageInfo { hasNextPage endCursor } } }`, { after });
       return d.products;
     }, { maxPages: 15 });
-    return nodes.map(mapProduct);
+    // Products switched off in the admin (tag eos-hidden) never reach the storefront.
+    return nodes.map(mapProduct).filter((p) => !p.hidden);
   });
 }
 
@@ -213,8 +243,8 @@ function related(all, product, n = 4) {
 // Lean card shape for grids.
 function card(p) {
   return {
-    handle: p.handle, title: p.title, type: p.type, tags: p.tags || [], price: p.price, maxPrice: p.maxPrice, compareAt: p.compareAt,
-    onSale: p.onSale, available: p.available, images: p.images.slice(0, 2), sizes: p.sizes, colours: p.colours,
+    handle: p.handle, title: p.title, type: p.type, kind: p.kind || null, tags: p.tags || [], price: p.price, maxPrice: p.maxPrice, compareAt: p.compareAt,
+    onSale: p.onSale, available: p.available, images: p.images.slice(0, 10), sizes: p.sizes, colours: p.colours, colourImages: p.colourImages || {},
     drop: p.drop, createdAt: p.createdAt,
     quick: p.variants.length === 1 ? { id: p.variants[0].id, available: p.variants[0].available, stock: p.variants[0].stock } : null,
   };

@@ -1,27 +1,22 @@
-<div class="product wrap" data-product="{{handle}}">
-  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">EOS</a><span>/</span><a href="/shop">Shop</a><span>/</span><span data-crumb-title>{{productTitle}}</span></nav>
-  <div class="product__grid">
-    <div class="gallery" data-gallery aria-busy="true">
-      <div class="gallery__thumbs" data-thumbs role="tablist" aria-label="Product images"></div>
-      <div class="gallery__main viewer" data-main-image data-viewer><div class="gallery__ph"></div></div>
+<div class="pdp" data-product="{{handle}}">
+  <nav class="crumbs wrap" aria-label="Breadcrumb"><a href="/">EOS</a><span>/</span><a href="/shop">Shop</a><span>/</span><span data-crumb-title>{{productTitle}}</span></nav>
+  <div class="pdp__grid wrap">
+    <div class="pdp__media">
+      <div class="pdp__stagebox" data-stagebox><div class="pdp__ph skel"></div></div>
+      <div class="pdp__views" data-views></div>
     </div>
-    <div class="pinfo" data-pinfo>
-      <div class="pinfo__skeleton"><span></span><span></span><span></span></div>
-    </div>
-  </div>
-  <div class="shop-rail" data-shop-rail hidden>
-    <div class="rail rail--shop" data-rail>
-      <div class="rail__pipe" aria-hidden="true"></div>
-      <div class="rail__track" data-rail-track></div>
+    <div class="pdp__info" data-pinfo aria-busy="true">
+      <div class="pdp__skel"><span></span><span></span><span></span></div>
     </div>
   </div>
-  <section class="related" data-related hidden aria-labelledby="related-title">
-    <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>Kindred</span></p><h2 class="section-head__title display" id="related-title">You may also be cursed by</h2></header>
+  <section class="pdp__focus wrap" data-focus hidden></section>
+  <section class="related wrap" data-related hidden aria-labelledby="related-title">
+    <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>More from EOS</span></p><h2 class="section-head__title display" id="related-title">You may also like</h2></header>
     <div class="products-grid" data-related-grid></div>
   </section>
-  <section class="related" data-recent hidden aria-labelledby="recent-title">
-    <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>Your trail</span></p><h2 class="section-head__title display" id="recent-title">Recently viewed</h2></header>
+  <section class="related wrap" data-recent hidden aria-labelledby="recent-title">
+    <header class="section-head"><p class="section-index"><span class="num">&#8224;</span><span>Recently viewed</span></p><h2 class="section-head__title display" id="recent-title">Recently viewed</h2></header>
     <div class="products-grid products-grid--small" data-recent-grid></div>
   </section>
 </div>
-<div class="sticky-buy" data-sticky-buy hidden><span data-sticky-title></span><span data-sticky-price></span><button class="btn btn--blood" type="button" data-sticky-add>Add to cart</button></div>
+<div class="buybar" data-buybar hidden><div class="buybar__in"><div class="buybar__txt"><span class="buybar__title" data-buybar-title></span><span class="buybar__price" data-buybar-price></span></div><button class="btn btn--blood buybar__btn" type="button" data-buybar-add>Add to bag</button></div></div>

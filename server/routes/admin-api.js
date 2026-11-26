@@ -116,6 +116,29 @@ router.patch('/products/:id', ah(async (req, res) => {
   invalidate(); activity.log(req, 'Edited product', `${data.title || id}: ${Object.keys(data).join(', ')}`);
   res.json({ product: await A.getProduct(id) });
 }));
+// Website controls: show/hide on the storefront and the category override that
+// picks the product's animation and page layout. Stored as Shopify tags
+// (eos-hidden, eos-kind:<kind>) so they travel with the product.
+const SITE_KINDS = ['tee', 'hoodie', 'jacket', 'shirt', 'pants', 'shorts', 'slide', 'sneaker', 'hat', 'beanie', 'bag', 'chain', 'ring', 'sock', 'glove', 'mask', 'accessory', 'default'];
+router.patch('/products/:id/site', ah(async (req, res) => {
+  const id = gidP('Product')(req);
+  const b = req.body || {};
+  const p = await A.getProduct(id);
+  let tags = (p.tags || []).slice();
+  if (b.visible !== undefined) {
+    tags = tags.filter((t) => !/^eos-hidden$/i.test(t));
+    if (!v.bool(b.visible)) tags.push('eos-hidden');
+  }
+  if (b.kind !== undefined) {
+    const kind = String(b.kind || '').toLowerCase();
+    if (kind && !SITE_KINDS.includes(kind)) throw new AppError('VALIDATION', 'Unknown category.', 422);
+    tags = tags.filter((t) => !/^eos-kind:/i.test(t));
+    if (kind) tags.push(`eos-kind:${kind}`);
+  }
+  await A.updateProduct(id, { tags });
+  invalidate(); activity.log(req, 'Website settings', `${p.title}: ${b.visible === undefined ? '' : (v.bool(b.visible) ? 'shown' : 'hidden')} ${b.kind !== undefined ? `category ${b.kind || 'auto'}` : ''}`.trim());
+  res.json({ product: await A.getProduct(id) });
+}));
 router.put('/products/:id/variants', ah(async (req, res) => {
   const id = gidP('Product')(req);
   await A.saveVariants(id, optionsInput(req.body.options), variantRows(req.body.variants));

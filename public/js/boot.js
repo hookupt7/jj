@@ -12,7 +12,7 @@
     localStorage.removeItem('eos:ambience');
     var entered = sessionStorage.getItem('eos:entered');
     var leaving = sessionStorage.getItem('eos:leaving');
-    if (!entered && !reduce) d.classList.add('is-gated');
+    if (!entered && !reduce && d.getAttribute('data-page') === 'home') d.classList.add('is-gated');
     else if (leaving) d.classList.add('is-entering');
     sessionStorage.removeItem('eos:leaving');
   } catch (e) { /* storage blocked */ }

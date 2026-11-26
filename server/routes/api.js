@@ -10,6 +10,7 @@ const v = require('../lib/validate');
 const { ah, AppError } = require('../lib/errors');
 const rateLimit = require('../lib/rateLimit');
 const { STATES } = require('../lib/nigeria');
+const { cutout } = require('../lib/cutout');
 
 const router = express.Router();
 const formLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 30 });
@@ -59,6 +60,22 @@ router.get('/products/:handle', ah(async (req, res) => {
   publicCache(res);
   const { gid, ...pub } = p;
   res.json({ product: pub, related: catalog.related(all, p).map(catalog.card) });
+}));
+
+// Product image on the dark stage: white studio backgrounds keyed out.
+router.get('/img', ah(async (req, res) => {
+  const src = String(req.query.src || '');
+  const w = Math.max(100, Math.min(1600, Number(req.query.w) || 720));
+  try {
+    const out = await cutout(src, w);
+    res.setHeader('Content-Type', out.type);
+    res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    res.setHeader('X-Cutout', out.cut ? '1' : '0');
+    res.send(out.buf);
+  } catch (e) {
+    if (e.status === 400) return res.status(400).json({ error: { code: 'BAD_IMAGE', message: e.message } });
+    res.redirect(302, src && /^https:\/\/cdn\.shopify\.com\//.test(src) ? src : '/img/og.jpg');
+  }
 }));
 
 router.get('/collections', ah(async (req, res) => {

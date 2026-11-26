@@ -45,7 +45,9 @@ router.get('/collections/:handle', safe(async (req, res, next) => {
 router.get('/product/:handle', safe(async (req, res, next) => {
   const handle = String(req.params.handle).toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]*$/.test(handle)) return next();
-  const p = config.shopify.configured ? await tryShopify(() => catalog.productByHandle(handle)) : null;
+  const all = config.shopify.configured ? await tryShopify(() => catalog.allProducts()) : null;
+  const p = all ? all.find((x) => x.handle === handle) || null : null;
+  if (all && !p) return next(); // unknown or hidden product -> 404 page
   let headExtra = '';
   if (p) {
     const base = baseUrl(req);

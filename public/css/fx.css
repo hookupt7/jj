@@ -267,18 +267,6 @@ html.is-gate-late .gate__skip { opacity: 1; border-bottom-color: var(--line-2); 
 .story--scrub .story__inner { min-height: 70vh; }
 .story--scrub .section-index { position: absolute; left: 0; right: 0; top: 8%; }
 
-/* ---------- ticker ---------- */
-.mq { overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #080505; }
-.mq__track { display: flex; width: max-content; animation: mq 28s linear infinite; }
-.mq__track span {
-  display: flex; align-items: center; white-space: nowrap;
-  padding: 10px 0; font: 500 clamp(0.95rem, 2.4vw, 1.35rem)/1 var(--f-display);
-  letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone);
-}
-.mq__track b { color: var(--blood-hi); padding: 0 0.7em; font-weight: 500; }
-@keyframes mq { to { transform: translateX(-50%); } }
-.mq--foot { margin-top: var(--sp-block); }
-
 /* ---------- 3D viewer ---------- */
 .viewer { perspective: 900px; transform-style: preserve-3d; }
 .viewer__spin {

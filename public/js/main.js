@@ -3,6 +3,7 @@ import { html } from './core.js';
 import * as fx from './fx.js';
 import { initCart } from './cart.js';
 import * as ui from './ui.js';
+import { tagStageImages } from './media.js';
 
 const PAGES = {
   home: () => import('./pages/home.js'),
@@ -16,6 +17,7 @@ const PAGES = {
   wishlist: () => import('./pages/wishlist.js'),
 };
 
+tagStageImages();
 fx.gate();
 fx.transitions();
 fx.grain();
