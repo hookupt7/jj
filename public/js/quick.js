@@ -51,7 +51,7 @@ function paint() {
       ${s.colourOpt && s.colourOpt.values.length > 1 ? `<div class="opt"><p class="opt__head"><span>Colour</span><b>${esc(c || '')}</b></p><div class="opt__swatches">${s.colourOpt.values.map((x) => { const bg = swatchCss(x); return `<button type="button" class="sw sw--lg${x === c ? ' is-on' : ''}" data-qd-colour="${esc(x)}" aria-pressed="${x === c}" aria-label="${esc(x)}" title="${esc(x)}"><i style="${bg ? `background:${bg}` : ''}"></i></button>`; }).join('')}</div></div>` : ''}
       ${sizes.length ? `<div class="opt"><p class="opt__head"><span>Size</span><b>${esc(s.size() || 'Select')}</b><button type="button" class="opt__guide" data-qd-guide>Size guide</button></p><div class="opt__sizes" role="radiogroup" aria-label="Size">${sizes.map((x) => { const ok = s.canBuy(s.sizeOpt.name, x); return `<button type="button" role="radio" class="sz${ok ? '' : ' is-out'}" data-qd-size="${esc(x)}" aria-checked="${x === s.size()}"${ok ? '' : ' aria-disabled="true"'}>${esc(x)}</button>`; }).join('')}</div></div>` : ''}
       <button class="btn btn--blood qd__add" type="button" data-qd-add ${out ? 'disabled' : ''}><span class="qd__add-label">${out ? 'Sold out' : s.preorder ? 'Pre-order' : 'Add to bag'}</span><span class="spin" aria-hidden="true"></span></button>
-      <a class="qd__more" href="/product/${esc(p.handle)}${c ? `?colour=${encodeURIComponent(c)}` : ''}">View full details <svg><use href="#i-arrow"/></svg></a>
+      <a class="qd__more" href="/product/${esc(p.handle)}${c ? `?colour=${encodeURIComponent(c)}` : ''}" aria-label="Product details">Details <svg><use href="#i-arrow"/></svg></a>
     </div>`;
   bindViewer($('[data-viewer]', body), { hint: kindPage(k.kind).hint });
 }

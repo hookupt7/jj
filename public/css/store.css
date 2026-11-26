@@ -483,3 +483,31 @@ body.has-buybar .to-top { bottom: calc(84px + env(safe-area-inset-bottom)); }
 @keyframes tapPop { 0% { transform: scale(1); } 40% { transform: scale(0.95) translateY(2%); } 100% { transform: scale(1); } }
 .pc.is-tap .pc__stage { border-color: rgba(214, 20, 48, 0.55); }
 html.reduce-motion .pc__glow, html.reduce-motion .vw__glow, html.reduce-motion .pc__stage::after { animation: none !important; }
+
+/* ---------- mobile product page: options + add to bag above the fold ---------- */
+@media (max-width: 759px) {
+  .pdp .crumbs { display: none; }
+  .pdp__grid { gap: 14px; }
+  .vw--pdp, .pdp[data-layout] .vw--pdp { aspect-ratio: auto; height: min(30vh, 270px); min-height: 190px; max-height: none; }
+  .pdp__kicker { display: none; }
+  .vw--pdp .vw__obj { top: 4% !important; bottom: 12% !important; left: 6%; right: 6%; }
+  .views__b { flex: 0 0 auto; }
+  .views__b { width: 44px; }
+  .views__l { display: none; }
+  .opt__sizes, .opt__sizes--shoe { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .opt__sizes::-webkit-scrollbar { display: none; }
+  .opt__sizes .sz { flex: 0 0 50px; }
+  .pdp__stock { font-size: 12px; }
+  .pdp__views { margin-top: 8px; }
+  .pdp__info { gap: 10px; }
+  .pdp__kicker { margin: 0; }
+  .pdp__title { font-size: 1.35rem; margin: 0; }
+  .pdp__price { margin: 0; font-size: 1.15rem; }
+  .pdp__stock { margin: 0; }
+  .opt { gap: 8px; }
+  .opt__colours { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; max-width: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .opt__colours::-webkit-scrollbar { display: none; }
+  .opt__colours .cw { flex: 0 0 48px; width: 48px; }
+  .sz { min-height: 40px; }
+}
+.pc__qv svg { width: 20px; height: 10px; }

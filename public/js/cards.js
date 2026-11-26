@@ -71,7 +71,7 @@ export function productCard(p, { eager = false, index = 0 } = {}) {
       </a>
       ${flag}
       <button class="pc__wish${wished ? ' is-on' : ''}" type="button" data-wish="${esc(p.handle)}" aria-pressed="${wished}" aria-label="${wished ? 'Remove from' : 'Save to'} wishlist"><svg><use href="#i-heart"/></svg></button>
-      <button class="pc__qv" type="button" data-quick-view="${esc(p.handle)}" aria-label="Quick view: ${esc(p.title)}"><span>Quick view</span><svg><use href="#i-plus"/></svg></button>
+      <a class="pc__qv" href="/product/${esc(p.handle)}" aria-label="Shop ${esc(p.title)}"><span>Shop now</span><svg><use href="#i-arrow"/></svg></a>
     </div>
     <div class="pc__body">
       <p class="pc__meta">${esc(meta)}</p>

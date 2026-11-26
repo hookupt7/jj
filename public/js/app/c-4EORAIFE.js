@@ -1,0 +1,6 @@
+import{c as p,d as a}from"./c-AFTPSZZG.js";import{d as m}from"./c-6ZTALNLH.js";import"./c-74RWDFLI.js";import{a as o,e as l,k as c,l as n,m as r,n as d}from"./c-GRGDXCIO.js";async function g(){let e=o("[data-collections]");if(e){e.innerHTML='<div class="coll skel"></div><div class="coll skel"></div><div class="coll skel"></div>';try{let s=await c("/api/collections");e.innerHTML=s.items.length?s.items.map((i,t)=>`
+      <a class="coll${i.image?"":" coll--noimg"}" href="/collections/${l(i.handle)}" data-reveal>
+        ${i.image?`<img src="${l(r(i.image.src,900))}" srcset="${l(d(i.image.src,[480,720,960,1280]))}" sizes="(min-width:1100px) 31vw, (min-width:700px) 48vw, 100vw" alt="" width="900" height="1200" loading="${t<3?"eager":"lazy"}" decoding="async">`:p()}
+        <div class="coll__body"><span class="coll__n">${String(t+1).padStart(2,"0")}</span><h2 class="coll__t">${l(i.title)}</h2><span class="coll__c">${i.count} piece${i.count===1?"":"s"}</span></div>
+      </a>`).join(""):a({title:"No collections yet",copy:"The first collection is coming. When it lands, it will appear here."})}catch(s){e.innerHTML=n(s)?a():`<div class="empty"><h2>The realm is quiet</h2><p>${l(s.message)}</p></div>`}e.removeAttribute("aria-busy"),m(e)}}export{g as default};
+//# sourceMappingURL=c-4EORAIFE.js.map

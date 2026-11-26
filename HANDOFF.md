@@ -72,3 +72,10 @@ The browser loads `public/js/app/main.js`, an esbuild bundle (target Safari/iOS 
 After editing anything in `public/js/` (except `boot.js` and `vendor/`), run `npm run build:js` and commit `public/js/app/`.
 `boot.js` (plain ES5) holds the safety net: it reports client errors to `POST /api/client-log` (visible in Render logs as
 `[client] {...}`) and shows plain product cards only if the app script really fails (error / load failure, or 25s).
+
+## Product taps (owner request t26u)
+Tapping any product card (shop, collections, home, wishlist, related) opens the full page `/product/:handle`.
+The small round button on cards is now an arrow link to the same page (no quick-view drawer from cards).
+`public/js/quick.js` (drawer) is still bundled for any `[data-quick-view]` trigger; its link reads "Details →".
+Mobile product page (<760px) is compacted so colour swatches, sizes, size guide and Add to bag sit above the fold
+(stage ~30vh, breadcrumb/kicker hidden, swatches + sizes in one swipeable row, key facts moved below the buy row).

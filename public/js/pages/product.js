@@ -112,7 +112,6 @@ export default async function product() {
     <h1 class="pdp__title">${esc(p.title)}</h1>
     <p class="pdp__price" data-price aria-live="polite"></p>
     <p class="pdp__stock" data-stock></p>
-    ${glance(p, k, page)}
     ${optColour()}
     ${others.map((o) => `<div class="opt"><p class="opt__head"><span>${esc(o.name)}</span></p><div class="opt__sizes" role="radiogroup">${o.values.map((v) => `<button type="button" role="radio" class="sz" data-other="${esc(o.name)}" data-val="${esc(v)}" aria-checked="${s.sel[o.name] === v}">${esc(v)}</button>`).join('')}</div></div>`).join('')}
     ${optSize()}
@@ -120,6 +119,7 @@ export default async function product() {
       <button class="btn btn--blood pdp__add" type="button" data-add ${out ? 'disabled' : ''}><span class="pdp__add-label">${out ? 'Sold out' : s.preorder ? 'Pre-order' : 'Add to bag'}</span><span class="spin" aria-hidden="true"></span></button>
       <button class="pdp__wish${wished() ? ' is-on' : ''}" type="button" data-pwish aria-pressed="${wished()}" aria-label="Save to wishlist"><svg><use href="#i-heart"/></svg></button>
     </div>
+    ${glance(p, k, page)}
     <a class="btn btn--line pdp__wa" data-wa target="_blank" rel="noopener" href="${waOrderHref(p, null)}"><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Order on WhatsApp</span></a>
     <div data-notify-box>${out ? notifyHtml(p, null) : ''}</div>
     <div class="acc">
