@@ -156,7 +156,7 @@ export default function shop() {
       st.page = 1; renderFilters(); load();
     }
     if (e.target.closest('[data-filters-clear]')) reset();
-    const pg = e.target.closest('[data-page]');
+    const pg = e.target.closest('a[data-page]'); // not <html data-page>
     if (pg) { e.preventDefault(); st.page = Number(pg.dataset.page); load({ scroll: true }); }
     if (e.target.closest('[data-filters-open]')) { filters.classList.add('is-open'); lockScroll(true); release = trapFocus(filters, closeF); }
     if (e.target.closest('[data-filters-close]')) closeF();
