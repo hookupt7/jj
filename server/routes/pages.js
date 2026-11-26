@@ -57,10 +57,13 @@ router.get('/product/:handle', safe(async (req, res, next) => {
       offers: { '@type': 'AggregateOffer', priceCurrency: 'NGN', lowPrice: p.price, highPrice: p.maxPrice, availability: p.available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', url: `${base}/product/${p.handle}` },
     };
     headExtra = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
-    if (p.images[0]) {
-      const src = p.images[0].src; const u = (w) => `${src}${src.includes('?') ? '&' : '?'}width=${w}`;
-      // Must match the gallery's first <img> exactly so the browser reuses the preload.
-      headExtra += `<link rel="preload" as="image" href="${esc(u(1200))}" imagesrcset="${esc([540, 720, 960, 1280, 1600].map((w) => `${u(w)} ${w}w`).join(', '))}" imagesizes="(min-width:1000px) 55vw, 100vw" fetchpriority="high">`;
+    const ci = p.colourImages && req.query.colour != null ? p.colourImages[String(req.query.colour)] : undefined;
+    const first = p.images[ci != null ? ci : 0] || p.images[0];
+    if (first) {
+      // Must match the gallery's first <img> (public/js/media.js stageImg) so the browser reuses the preload.
+      const isShop = /cdn\.shopify\.com/.test(first.src);
+      const u = (w) => (isShop ? `/api/img?w=${w}&src=${encodeURIComponent(first.src)}` : first.src);
+      headExtra += `<link rel="preload" as="image" href="${esc(u(960))}"${isShop ? ` imagesrcset="${esc([360, 540, 720, 960, 1280].map((w) => `${u(w)} ${w}w`).join(', '))}" imagesizes="(min-width:1000px) 52vw, 100vw"` : ''} fetchpriority="high">`;
     }
   }
   await render(req, res, 'product', {
