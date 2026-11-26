@@ -8,7 +8,7 @@ const { esc } = require('./lib/html');
 const { STATES } = require('./lib/nigeria');
 
 const VIEWS = path.join(__dirname, 'views');
-const VERSION = Date.now().toString(36);
+const VERSION = Date.now().toString(36) + '-g2';
 const tplCache = new Map();
 function tpl(file) {
   if (config.isProd && tplCache.has(file)) return tplCache.get(file);

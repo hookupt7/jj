@@ -8,15 +8,15 @@ const hasGsap = () => typeof window.gsap === 'function' || (window.gsap && windo
 export function gate() {
   const box = $('#gate');
   if (!box || !html.classList.contains('is-gated')) return Promise.resolve();
-  const holdBtn = $('#hold');
   const ring = $('#gate-ring');
   const skip = $('[data-gate-skip]', box);
-  const HOLD = 1300;
-  let raf = 0; let done = false;
+  let done = false;
 
-  const finish = () => {
+  const finish = (e) => {
+    if (e) e.preventDefault();
     if (done) return;
     done = true;
+    if (ring) ring.style.strokeDashoffset = '0';
     try { sessionStorage.setItem('eos:entered', '1'); } catch (_) { /* ignore */ }
     const close = () => {
       html.classList.remove('is-gated', 'is-gate-late');
@@ -24,35 +24,27 @@ export function gate() {
     };
     const g = gsap();
     if (g && !reduced()) {
-      g.to(box, { opacity: 0, scale: 1.12, duration: 1.05, ease: 'power3.inOut', onComplete: close });
+      g.to(box, { opacity: 0, scale: 1.12, duration: 0.7, ease: 'power3.inOut', onComplete: close });
     } else {
       close();
     }
     document.dispatchEvent(new CustomEvent('eos:entered'));
   };
 
-  const press = () => {
-    if (done) return;
-    const t0 = performance.now();
-    cancelAnimationFrame(raf);
-    const tick = (t) => {
-      const p = Math.min(1, (t - t0) / HOLD);
-      if (ring) ring.style.strokeDashoffset = String(1 - p);
-      if (p >= 1) { finish(); return; }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-  };
-  const release = () => {
-    if (done) return;
-    cancelAnimationFrame(raf);
-    if (ring) ring.style.strokeDashoffset = '1';
+  const arm = (e) => {
+    if (e) e.preventDefault();
+    if (ring && !done) ring.style.strokeDashoffset = '0';
   };
 
-  holdBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => holdBtn.addEventListener(ev, release));
-  skip.addEventListener('click', finish);
-  addEventListener('keydown', (e) => { if (!done && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); finish(); } });
+  box.addEventListener('pointerdown', arm);
+  box.addEventListener('pointerup', finish);
+  box.addEventListener('click', finish);
+  box.addEventListener('contextmenu', (e) => e.preventDefault());
+  if (skip) {
+    skip.addEventListener('pointerup', finish);
+    skip.addEventListener('click', finish);
+  }
+  addEventListener('keydown', (e) => { if (!done && (e.key === 'Enter' || e.key === ' ')) finish(e); });
 }
 
 export function grain() {

@@ -12,8 +12,7 @@ const mandalaSvg = () => {
 export { mandalaSvg };
 
 export function summonState({ title = 'The first drop is coming', copy = 'The first pieces are on their way. When they land they will appear here, and the ones on our list hear first.', actions = true } = {}) {
-  return `<div class="summon">
-    <div class="summon__ring">${mandalaSvg()}</div>
+  return `<div class="summon summon--plain">
     <div>
       <p class="section-index"><span class="num">&#8224;</span><span>Soon</span></p>
       <h3 class="summon__title">${esc(title)}</h3>
