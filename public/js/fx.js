@@ -174,7 +174,9 @@ export function transitions() {
     if (reduced() || !wipe) return;
     e.preventDefault();
     try { sessionStorage.setItem('eos:leaving', '1'); } catch (_) { /* ignore */ }
-    const go = () => { location.href = url.href; };
+    let gone = false;
+    const go = () => { if (gone) return; gone = true; location.href = url.href; };
+    setTimeout(go, 700); // never let the wipe animation hold up navigation
     wipe.classList.add('is-on');
     const g = gsap();
     if (g) {
