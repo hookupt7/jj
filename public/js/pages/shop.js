@@ -2,6 +2,8 @@ import { $, $$, api, esc, ngn, colourCss, debounce, lockScroll, trapFocus, notCo
 import { productCard, summonState, skeletonCards } from '../cards.js';
 import { reveals } from '../fx.js';
 import { recent } from '../cart.js';
+import { shopRail } from '../rail.js';
+import { floatClothes } from '../float.js';
 
 const LIST_KEYS = ['type', 'size', 'colour'];
 const parse = () => {
@@ -38,6 +40,8 @@ async function recentlyViewed() {
 }
 
 export default function shop() {
+  shopRail();
+  floatClothes($('[data-float]'));
   recentlyViewed();
   const root = $('[data-shop]'); if (!root) return;
   const collection = root.dataset.collection || '';

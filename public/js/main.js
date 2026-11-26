@@ -16,11 +16,15 @@ const PAGES = {
   wishlist: () => import('./pages/wishlist.js'),
 };
 
-fx.preloader();
+fx.gate();
 fx.transitions();
 fx.grain();
 fx.autoplayVideos();
 fx.toTop();
+fx.cursor();
+fx.progress();
+fx.magnetic();
+fx.smoothScroll();
 initCart();
 ui.header();
 ui.mobileMenu();

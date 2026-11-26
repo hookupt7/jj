@@ -23,17 +23,34 @@
 <link rel="preload" href="/fonts/archivo-latin-b42cd5.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v={{v}}">
 <link rel="stylesheet" href="/css/main.css?v={{v}}">
-<link rel="stylesheet" href="/css/polish.css?v={{v}}">
-<link rel="stylesheet" href="/css/motion.css?v={{v}}">
-<link rel="stylesheet" href="/css/refine.css?v={{v}}">
-<script src="/js/refine.js?v={{v}}" defer></script>
-<script src="/js/polish.js?v={{v}}" defer></script>
+<link rel="stylesheet" href="/css/fx.css?v={{v}}">
 {{{headExtra}}}
 <script src="/js/boot.js?v={{v}}"></script>
+<script src="/js/vendor/gsap.min.js?v={{v}}" defer></script>
+<script src="/js/vendor/ScrollTrigger.min.js?v={{v}}" defer></script>
+<script src="/js/vendor/lenis.min.js?v={{v}}" defer></script>
 <script type="module" src="/js/main.js?v={{v}}"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
+
+<div id="gate" class="gate">
+  <button type="button" id="hold" class="gate__hold" aria-label="Hold to enter">
+    <img class="gate__sigil" src="/img/eos-sigil.webp" alt="" width="260" height="655">
+    <svg class="gate__ring" viewBox="0 0 260 260" aria-hidden="true">
+      <circle cx="130" cy="130" r="124" fill="none" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+      <circle id="gate-ring" cx="130" cy="130" r="124" fill="none" stroke="currentColor" stroke-width="2" pathLength="1"/>
+    </svg>
+  </button>
+  <h1 class="gate__word display">EOS</h1>
+  <p class="gate__hint">Hold to enter</p>
+  <button type="button" class="gate__skip" data-gate-skip>Enter the realm</button>
+</div>
+<div id="wipe" class="wipe" aria-hidden="true"></div>
+<div id="heart" class="heart" aria-hidden="true"></div>
+<div id="flick" class="flick" aria-hidden="true"></div>
+<div id="cur" class="cur" aria-hidden="true"></div>
+<div id="eos-progress" aria-hidden="true"></div>
 
 <svg class="defs" aria-hidden="true" focusable="false" width="0" height="0">
   <defs>
@@ -81,6 +98,7 @@
     <button class="icon-btn site-header__menu" type="button" data-menu-open aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><svg><use href="#i-menu"/></svg></button>
     <nav class="site-nav" aria-label="Primary">
       <a href="/shop" data-nav="shop">Shop</a>
+      <a href="/collections" data-nav="collections">Collections</a>
       <a href="/about" data-nav="about">About</a>
     </nav>
     <a class="site-logo" href="/" aria-label="EOS, Enemy of Swag, home">
@@ -103,12 +121,22 @@
   </div>
   <nav class="mobile-menu__nav" aria-label="Mobile">
     <details class="mm-group"><summary><span>Shop</span><svg><use href="#i-plus"/></svg></summary>
-      <div class="mm-sub" data-mm-types><a href="/shop?sort=newest">New arrivals</a><a href="/collections">Collections</a></div>
+      <div class="mm-sub" data-mm-types>
+        <a href="/shop">All pieces</a>
+        <a href="/shop?sort=newest">New arrivals</a>
+        <a href="/collections">Collections</a>
+      </div>
     </details>
     <a href="/about">About &amp; manifesto</a>
     <a href="/join">Join the cult</a>
     <details class="mm-group"><summary><span>Help</span><svg><use href="#i-plus"/></svg></summary>
-      <div class="mm-sub"><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/wishlist">Wishlist</a></div>
+      <div class="mm-sub">
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contact</a>
+        <a href="/shipping-returns">Shipping &amp; returns</a>
+        <a href="/track">Track an order</a>
+        <a href="/wishlist">Wishlist</a>
+      </div>
     </details>
   </nav>
   <div class="mobile-menu__foot">
@@ -147,6 +175,12 @@
 </main>
 
 <!--#section footer-->
+<div class="mq mq--foot" aria-hidden="true">
+  <div class="mq__track">
+    <span>IT’S US<b>/</b>NO COPIES<b>/</b>SEWN BY HAND<b>/</b>666<b>/</b></span>
+    <span>IT’S US<b>/</b>NO COPIES<b>/</b>SEWN BY HAND<b>/</b>666<b>/</b></span>
+  </div>
+</div>
 <footer class="site-footer">
   <div class="site-footer__grid">
     <div class="site-footer__brand">
@@ -154,9 +188,9 @@
       <p class="site-footer__word">Enemy<br>of Swag</p>
       <p class="site-footer__line">It&rsquo;s us. Not made to fit in.</p>
     </div>
-    <nav class="site-footer__col" aria-label="Shop links"><h3>Shop</h3><a href="/collections">Collections</a><a href="/wishlist">Wishlist</a></nav>
+    <nav class="site-footer__col" aria-label="Shop links"><h3>Shop</h3><a href="/shop">All pieces</a><a href="/collections">Collections</a><a href="/wishlist">Wishlist</a></nav>
     <nav class="site-footer__col" aria-label="Brand links"><h3>EOS</h3><a href="/about">About &amp; manifesto</a><a href="/join">Join the cult</a></nav>
-    <nav class="site-footer__col" aria-label="Help links"><h3>Help</h3><a href="/faq">FAQ</a><a href="/contact">Contact</a></nav>
+    <nav class="site-footer__col" aria-label="Help links"><h3>Help</h3><a href="/faq">FAQ</a><a href="/contact">Contact</a><a href="/shipping-returns">Shipping &amp; returns</a><a href="/track">Track an order</a></nav>
   </div>
   <div class="site-footer__base">
     <span>&copy; {{year}} EOS. Made in Nigeria.</span>

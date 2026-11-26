@@ -3,10 +3,16 @@
   <div class="product__grid">
     <div class="gallery" data-gallery aria-busy="true">
       <div class="gallery__thumbs" data-thumbs role="tablist" aria-label="Product images"></div>
-      <div class="gallery__main" data-main-image><div class="gallery__ph"></div></div>
+      <div class="gallery__main viewer" data-main-image data-viewer><div class="gallery__ph"></div></div>
     </div>
     <div class="pinfo" data-pinfo>
       <div class="pinfo__skeleton"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <div class="shop-rail" data-shop-rail hidden>
+    <div class="rail rail--shop" data-rail>
+      <div class="rail__pipe" aria-hidden="true"></div>
+      <div class="rail__track" data-rail-track></div>
     </div>
   </div>
   <section class="related" data-related hidden aria-labelledby="related-title">

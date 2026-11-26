@@ -1,51 +1,60 @@
-// Motion layer: preloader, page veil, grain, reveals, embers, video autoplay.
-// Kept deliberately quiet: no text scrambling, no custom cursor, no sound.
-import { $, $$, html, reduced } from './core.js';
+// Cinematic motion: gate, grain, embers, drips, cursor, wipes, reveals, Lenis.
+// No people, no scramble. Respects prefers-reduced-motion. Mobile-first.
+import { $, $$, html, reduced, isTouch } from './core.js';
 
-/* ---------------- preloader ---------------- */
-export function preloader() {
+const gsap = () => window.gsap;
+const hasGsap = () => typeof window.gsap === 'function' || (window.gsap && window.gsap.to);
+
+export function gate() {
+  const box = $('#gate');
+  if (!box || !html.classList.contains('is-gated')) return Promise.resolve();
+  const holdBtn = $('#hold');
+  const ring = $('#gate-ring');
+  const skip = $('[data-gate-skip]', box);
+  const HOLD = 1300;
+  let raf = 0; let done = false;
+
   const finish = () => {
-    html.classList.add('is-loaded');
-    try { sessionStorage.setItem('eos:seen', '1'); } catch (_) { /* ignore */ }
+    if (done) return;
+    done = true;
+    try { sessionStorage.setItem('eos:entered', '1'); } catch (_) { /* ignore */ }
+    const close = () => {
+      html.classList.remove('is-gated', 'is-gate-late');
+      box.setAttribute('hidden', '');
+    };
+    const g = gsap();
+    if (g && !reduced()) {
+      g.to(box, { opacity: 0, scale: 1.12, duration: 1.05, ease: 'power3.inOut', onComplete: close });
+    } else {
+      close();
+    }
+    document.dispatchEvent(new CustomEvent('eos:entered'));
   };
-  if (!html.classList.contains('is-first')) { requestAnimationFrame(finish); return; }
-  const count = $('[data-count]');
-  const start = performance.now();
-  const MIN = 1900;
-  let loaded = document.readyState === 'complete';
-  window.addEventListener('load', () => { loaded = true; }, { once: true });
-  const tick = (t) => {
-    const p = Math.min(1, (t - start) / MIN);
-    const shown = Math.floor((loaded ? p : Math.min(p, 0.86)) * 100);
-    if (count) count.textContent = String(shown).padStart(3, '0');
-    if (p >= 1 && loaded) { if (count) count.textContent = '100'; setTimeout(finish, 180); return; }
-    if (t - start > 4000) { finish(); return; }
-    requestAnimationFrame(tick);
+
+  const press = () => {
+    if (done) return;
+    const t0 = performance.now();
+    cancelAnimationFrame(raf);
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / HOLD);
+      if (ring) ring.style.strokeDashoffset = String(1 - p);
+      if (p >= 1) { finish(); return; }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
   };
-  requestAnimationFrame(tick);
+  const release = () => {
+    if (done) return;
+    cancelAnimationFrame(raf);
+    if (ring) ring.style.strokeDashoffset = '1';
+  };
+
+  holdBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => holdBtn.addEventListener(ev, release));
+  skip.addEventListener('click', finish);
+  addEventListener('keydown', (e) => { if (!done && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); finish(); } });
 }
 
-/* ---------------- page transitions (fade to black with sigil) ---------------- */
-export function transitions() {
-  document.addEventListener('click', (e) => {
-    const a = e.target.closest('a[href]');
-    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    if (a.target && a.target !== '_self') return;
-    if (a.hasAttribute('download') || a.dataset.noTransition !== undefined) return;
-    const url = new URL(a.href, location.href);
-    if (url.origin !== location.origin || url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) return;
-    if (url.pathname === location.pathname && url.search === location.search && url.hash) return;
-    if (reduced()) return;
-    e.preventDefault();
-    try { sessionStorage.setItem('eos:leaving', '1'); } catch (_) { /* ignore */ }
-    html.classList.add('is-leaving');
-    setTimeout(() => { location.href = url.href; }, 420);
-  });
-  // Back/forward cache: clear the veil.
-  window.addEventListener('pageshow', (e) => { if (e.persisted) { html.classList.remove('is-leaving', 'is-entering'); html.classList.add('is-loaded'); } });
-}
-
-/* ---------------- film grain (one generated tile) ---------------- */
 export function grain() {
   const c = document.createElement('canvas'); c.width = c.height = 180;
   const ctx = c.getContext('2d'); const img = ctx.createImageData(180, 180);
@@ -54,37 +63,53 @@ export function grain() {
   c.toBlob((b) => { if (!b) return; html.style.setProperty('--grain-url', `url(${URL.createObjectURL(b)})`); html.classList.add('has-grain'); });
 }
 
-/* ---------------- reveals ---------------- */
-let io;
+export function drips(root) {
+  const box = root || $('[data-drips]');
+  if (!box || reduced()) return;
+  const n = window.innerWidth < 700 ? 5 : 9;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i += 1) {
+    const d = document.createElement('span');
+    d.className = 'hero__drip';
+    d.style.left = `${6 + (i * 11) + Math.random() * 6}%`;
+    d.style.height = `${18 + Math.random() * 38}%`;
+    d.style.animationDelay = `${-Math.random() * 4}s`;
+    d.style.animationDuration = `${3.8 + Math.random() * 2.4}s`;
+    frag.appendChild(d);
+  }
+  box.appendChild(frag);
+}
+
 export function reveals(root = document) {
   const items = $$('[data-reveal]:not(.is-in), [data-reveal-stagger]:not(.is-in)', root);
   if (reduced() || !('IntersectionObserver' in window)) { items.forEach((el) => el.classList.add('is-in')); return; }
-  io = io || new IntersectionObserver((entries) => entries.forEach((en) => {
-    if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
-  }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-  items.forEach((el) => io.observe(el));
+  if (!reveals.io) {
+    reveals.io = new IntersectionObserver((entries) => entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add('is-in'); reveals.io.unobserve(en.target); }
+    }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  }
+  items.forEach((el) => reveals.io.observe(el));
 }
 
-/* ---------------- embers / ash particles ---------------- */
 export function embers(canvas) {
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  if (!canvas || reduced()) return;
+  const ctx = canvas.getContext('2d', { alpha: true });
   let w = 0; let h = 0; let dpr = 1; let parts = []; let raf = 0; let visible = true;
-  const N = () => Math.round(Math.min(46, (w * h) / 26000));
+  const N = () => Math.round(Math.min(window.innerWidth < 700 ? 22 : 42, (w * h) / 30000));
   const spawn = (initial) => ({
     x: Math.random() * w, y: initial ? Math.random() * h : h + 10,
     r: Math.random() * 1.6 + 0.4, vy: -(Math.random() * 0.5 + 0.18), vx: (Math.random() - 0.5) * 0.25,
     life: 0, max: 380 + Math.random() * 520, ash: Math.random() < 0.35, flick: Math.random() * Math.PI * 2,
   });
   const resize = () => {
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(1.5, window.devicePixelRatio || 1);
     w = canvas.clientWidth; h = canvas.clientHeight;
     canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     parts = Array.from({ length: N() }, () => spawn(true));
   };
   const frame = (t) => {
     raf = 0;
-    if (!visible || reduced()) { ctx.clearRect(0, 0, w, h); return; }
+    if (!visible || reduced() || document.hidden) { ctx.clearRect(0, 0, w, h); return; }
     ctx.clearRect(0, 0, w, h);
     ctx.globalCompositeOperation = 'lighter';
     for (const p of parts) {
@@ -104,17 +129,13 @@ export function embers(canvas) {
   };
   const start = () => { if (!raf) raf = requestAnimationFrame(frame); };
   resize(); start();
-  window.addEventListener('resize', () => { resize(); start(); });
-  new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible) start(); }).observe(canvas);
+  window.addEventListener('resize', () => { resize(); start(); }, { passive: true });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([en]) => { visible = en.isIntersecting; if (visible) start(); }).observe(canvas);
+  }
   document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible) start(); });
-  html.addEventListener('eos:motion', start);
 }
 
-
-/* ---------------- background / film video autoplay ----------------
-   Muted, inline, looping, no controls. iOS Safari needs the muted *property* set before play()
-   (the attribute alone is not always enough) and playsinline; if autoplay is still refused
-   (Low Power Mode), we retry on the first touch, scroll or tab return. The poster shows meanwhile. */
 export function autoplayVideos(root = document) {
   const vids = $$('video[data-autoplay]', root);
   if (!vids.length) return;
@@ -128,7 +149,6 @@ export function autoplayVideos(root = document) {
     prep(v);
     if (v.readyState >= 2) play(v); else v.addEventListener('loadeddata', () => play(v), { once: true });
     play(v);
-    // Pause off-screen films to save battery; resume when they come back.
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([en]) => { if (en.isIntersecting) play(v); else v.pause(); }, { threshold: 0.01 }).observe(v);
     }
@@ -139,7 +159,6 @@ export function autoplayVideos(root = document) {
   window.addEventListener('pageshow', retry);
 }
 
-/* ---------------- back to top ---------------- */
 export function toTop() {
   const b = document.querySelector('[data-to-top]');
   if (!b) return;
@@ -148,4 +167,126 @@ export function toTop() {
   window.addEventListener('scroll', check, { passive: true });
   b.addEventListener('click', () => { scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); });
   check();
+}
+
+export function transitions() {
+  const wipe = $('#wipe');
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (a.target && a.target !== '_self') return;
+    if (a.hasAttribute('download') || a.dataset.noTransition !== undefined) return;
+    const url = new URL(a.href, location.href);
+    if (url.origin !== location.origin || url.pathname.startsWith('/admin') || url.pathname.startsWith('/api')) return;
+    if (url.pathname === location.pathname && url.search === location.search) return;
+    if (reduced() || !wipe) return;
+    e.preventDefault();
+    try { sessionStorage.setItem('eos:leaving', '1'); } catch (_) { /* ignore */ }
+    const go = () => { location.href = url.href; };
+    wipe.classList.add('is-on');
+    const g = gsap();
+    if (g) {
+      g.timeline()
+        .set(wipe, { yPercent: 100 })
+        .to(wipe, { yPercent: 0, duration: 0.48, ease: 'power4.inOut' })
+        .add(go);
+    } else {
+      wipe.style.transform = 'translateY(0)';
+      setTimeout(go, 420);
+    }
+  });
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) { html.classList.remove('is-entering', 'is-gated'); html.classList.add('is-loaded'); }
+    if (html.classList.contains('is-entering') && wipe) {
+      const g = gsap();
+      wipe.classList.add('is-on');
+      if (g && !reduced()) {
+        g.fromTo(wipe, { yPercent: 0 }, { yPercent: -100, duration: 0.5, ease: 'power4.inOut', onComplete: () => { g.set(wipe, { yPercent: 100 }); wipe.classList.remove('is-on'); html.classList.remove('is-entering'); } });
+      } else { wipe.classList.remove('is-on'); html.classList.remove('is-entering'); }
+    }
+  });
+}
+
+export function cursor() {
+  const c = $('#cur');
+  if (!c || reduced() || isTouch() || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  html.classList.add('has-cursor');
+  const g = gsap();
+  if (g && g.quickTo) {
+    const qx = g.quickTo(c, 'x', { duration: 0.22 });
+    const qy = g.quickTo(c, 'y', { duration: 0.22 });
+    addEventListener('pointermove', (e) => { qx(e.clientX); qy(e.clientY); }, { passive: true });
+    document.addEventListener('pointerover', (e) => {
+      g.to(c, { scale: e.target.closest('a, button, input, [data-float-item], [data-rail-item]') ? 1.9 : 1, rotate: e.target.closest('a, button') ? 45 : 0, duration: 0.25 });
+    });
+  } else {
+    addEventListener('pointermove', (e) => { c.style.left = `${e.clientX}px`; c.style.top = `${e.clientY}px`; }, { passive: true });
+  }
+}
+
+export function progress() {
+  const bar = $('#eos-progress');
+  if (!bar || reduced()) return;
+  let busy = false;
+  addEventListener('scroll', () => {
+    if (busy) return; busy = true;
+    requestAnimationFrame(() => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`;
+      busy = false;
+    });
+  }, { passive: true });
+}
+
+export function magnetic() {
+  if (reduced() || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const strength = 7;
+  $$('.btn, .icon-btn').forEach((el) => {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2 || 1);
+      const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2 || 1);
+      el.style.setProperty('--mx', `${(dx * strength).toFixed(2)}px`);
+      el.style.setProperty('--my', `${(dy * strength).toFixed(2)}px`);
+    }, { passive: true });
+    const reset = () => { el.style.setProperty('--mx', '0px'); el.style.setProperty('--my', '0px'); };
+    el.addEventListener('pointerleave', reset, { passive: true });
+    el.addEventListener('blur', reset);
+  });
+}
+
+export function smoothScroll() {
+  // Lenis is smoother on a fine pointer. Native scrolling stays faster on phones.
+  if (reduced() || isTouch() || !window.Lenis) return null;
+  const lenis = new window.Lenis({ lerp: 0.12, smoothWheel: true });
+  const g = gsap();
+  if (g && window.ScrollTrigger) {
+    g.registerPlugin(window.ScrollTrigger);
+    lenis.on('scroll', window.ScrollTrigger.update);
+    g.ticker.add((t) => lenis.raf(t * 1000));
+    g.ticker.lagSmoothing(0);
+  } else {
+    const loop = (t) => { lenis.raf(t); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+  window.__eosLenis = lenis;
+  return lenis;
+}
+
+export function story() {
+  const root = $('[data-story]');
+  if (!root) return;
+  const g = gsap();
+  const pin = !reduced() && window.innerWidth >= 800 && g && window.ScrollTrigger;
+  if (!pin) return;
+  g.registerPlugin(window.ScrollTrigger);
+  root.classList.add('story--scrub');
+  const steps = $$('[data-story-step]', root);
+  const tl = g.timeline({
+    scrollTrigger: { trigger: root, start: 'top top', end: '+=280%', pin: true, scrub: 0.7, anticipatePin: 1 },
+  });
+  steps.forEach((el, i) => {
+    tl.fromTo(el, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6 }, i * 0.9)
+      .to(el, { opacity: i === steps.length - 1 ? 1 : 0, y: i === steps.length - 1 ? 0 : -20, duration: 0.5 }, i * 0.9 + 0.7);
+  });
 }

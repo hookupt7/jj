@@ -33,8 +33,8 @@ export class ApiError extends Error {
   }
 }
 export async function api(path, { method = 'GET', body, signal } = {}) {
-  // Storefront calls short-circuit until Shopify is connected (no failed requests in the console).
-  if (!boot.shopifyConfigured && !path.startsWith('/api/admin')) throw new ApiError(503, { error: { code: 'SHOPIFY_NOT_CONFIGURED', message: 'Not connected yet' } });
+  // Reads are always allowed: the server serves a marked demo catalog when Shopify is offline.
+  // Writes that need Shopify still come back as 503 from the API.
   const res = await fetch(path, {
     method, signal, credentials: 'same-origin',
     headers: body ? { 'Content-Type': 'application/json', Accept: 'application/json' } : { Accept: 'application/json' },

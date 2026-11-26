@@ -4,6 +4,8 @@ import { productCard, summonState } from '../cards.js';
 import { reveals } from '../fx.js';
 import { openModal } from '../ui.js';
 import { sizeGuideHtml, waOrderHref, notifyHtml } from '../buy.js';
+import { bindViewer } from '../viewer.js';
+import { shopRail } from '../rail.js';
 
 const S = boot.settings || {};
 const isSize = (n) => /^size$/i.test(n);
@@ -18,6 +20,7 @@ function shippingCopy() {
 
 export default async function product() {
   const root = $('[data-product]'); if (!root) return;
+  shopRail();
   const handle = root.dataset.product;
   const info = $('[data-pinfo]', root); const gallery = $('[data-gallery]', root);
   let data;
@@ -38,7 +41,8 @@ export default async function product() {
     if (!images.length) return;
     idx = (i + images.length) % images.length;
     const im = images[idx];
-    main.innerHTML = `<img src="${esc(imgUrl(im.src, 1200))}" srcset="${esc(srcset(im.src, [540, 720, 960, 1280, 1600]))}" sizes="(min-width:1000px) 55vw, 100vw" alt="${esc(im.alt)}" ${im.w ? `width="${im.w}" height="${im.h}"` : ''} ${idx ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">
+    const host = main.querySelector('.viewer__spin') || main;
+    host.innerHTML = `<img src="${esc(imgUrl(im.src, 1200))}" srcset="${esc(srcset(im.src, [540, 720, 960, 1280, 1600]))}" sizes="(min-width:1000px) 55vw, 100vw" alt="${esc(im.alt)}" ${im.w ? `width="${im.w}" height="${im.h}"` : ''} ${idx ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">
       <div class="gallery__lens" aria-hidden="true"></div>
       <span class="gallery__count">${String(idx + 1).padStart(2, '0')} / ${String(images.length).padStart(2, '0')}</span>
       <button class="icon-btn gallery__zoombtn" type="button" data-zoom aria-label="Zoom image"><svg><use href="#i-zoom"/></svg></button>`;
@@ -49,6 +53,7 @@ export default async function product() {
   if (images.length) {
     thumbs.innerHTML = images.length > 1 ? images.map((im, i) => `<button type="button" role="tab" aria-label="Image ${i + 1}" aria-selected="${i === 0}" data-i="${i}"><img src="${esc(imgUrl(im.src, 200))}" alt="" width="76" height="95" loading="lazy"></button>`).join('') : '';
     showImage(0);
+    bindViewer(main);
   } else main.innerHTML = '<div class="gallery__ph skel"></div>';
   gallery.removeAttribute('aria-busy');
   thumbs.addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (b) showImage(Number(b.dataset.i)); });

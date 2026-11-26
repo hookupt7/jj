@@ -1,8 +1,12 @@
 import { $, api, esc, imgUrl, srcset, notConfigured } from '../core.js';
 import { summonState, mandalaSvg } from '../cards.js';
 import { reveals } from '../fx.js';
+import { shopRail } from '../rail.js';
+import { floatClothes } from '../float.js';
 
 export default async function collections() {
+  shopRail();
+  floatClothes($('[data-float]'));
   const grid = $('[data-collections]'); if (!grid) return;
   grid.innerHTML = '<div class="coll skel"></div><div class="coll skel"></div><div class="coll skel"></div>';
   try {
