@@ -185,7 +185,6 @@ router.post('/orders/track', trackLimiter, ah(async (req, res) => {
   res.json({ order: await orders.track(num, phone) });
 }));
 
-router.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Unknown endpoint' } }));
 // Client error beacon (helps debug phones we can't test directly). Logged to Render logs only.
 const logLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 40 });
 router.post('/client-log', logLimiter, (req, res) => {
@@ -193,5 +192,7 @@ router.post('/client-log', logLimiter, (req, res) => {
   console.log('[client]', JSON.stringify({ kind: s(b.kind, 20), msg: s(b.msg, 400), src: s(b.src, 200), line: Number(b.line) || 0, page: s(b.page, 120), booted: !!b.booted, ua: s(b.ua, 220) }));
   res.status(204).end();
 });
+
+router.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Unknown endpoint' } }));
 
 module.exports = router;
