@@ -1,6 +1,7 @@
 // Product card + empty "summoning" state renderers.
 import { esc, ngn, priceRange, imgUrl, srcset } from './core.js';
 import { wishlist } from './cart.js';
+import { productKind } from './kind.js';
 
 const mandalaSvg = () => {
   // Small inline ring (client-side twin of the server mandala, simplified).
@@ -43,7 +44,8 @@ export function productCard(p, { eager = false, index = 0 } = {}) {
     ? `<button type="button" data-quick-add="${esc(p.quick.id)}" data-handle="${esc(p.handle)}" ${p.quick.available || (p.drop && p.drop.preorder) ? '' : 'disabled'}>Add to cart</button>`
     : (p.sizes && p.sizes.length ? [...p.sizes].sort((x, y) => sizeRank(x) - sizeRank(y)).map((s) => `<a href="/product/${esc(p.handle)}?size=${encodeURIComponent(s)}" aria-label="${esc(p.title)} size ${esc(s)}">${esc(s)}</a>`).join('') : '');
   const meta = [p.type, p.colours && p.colours.length > 1 ? `${p.colours.length} colours` : (p.colours && p.colours[0]) || ''].filter(Boolean).join(' \u2014 ');
-  return `<article class="card" data-reveal style="transition-delay:${(index % 4) * 70}ms">
+  const kind = productKind(p);
+  return `<article class="card card--${kind.kind}" data-kind="${kind.kind}" data-reveal style="transition-delay:${(index % 4) * 70}ms">
     <div class="card__frame">
       <a class="card__media${a ? '' : ' skel'}" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">
         ${imgTag(a, 'card__img card__img--1', !eager)}${imgTag(b, 'card__img card__img--2', true)}

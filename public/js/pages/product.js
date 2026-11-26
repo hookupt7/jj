@@ -6,6 +6,7 @@ import { openModal } from '../ui.js';
 import { sizeGuideHtml, waOrderHref, notifyHtml } from '../buy.js';
 import { bindViewer } from '../viewer.js';
 import { shopRail } from '../rail.js';
+import { productKind, kindPage } from '../kind.js';
 
 const S = boot.settings || {};
 const isSize = (n) => /^size$/i.test(n);
@@ -31,6 +32,11 @@ export default async function product() {
     return;
   }
   const p = data.product;
+  const kind = productKind(p);
+  const page = kindPage(kind.kind);
+  root.dataset.kind = kind.kind;
+  root.dataset.family = kind.family;
+  root.dataset.layout = page.layout;
   recent.push(p.handle);
 
   /* ---------- gallery ---------- */
@@ -53,7 +59,7 @@ export default async function product() {
   if (images.length) {
     thumbs.innerHTML = images.length > 1 ? images.map((im, i) => `<button type="button" role="tab" aria-label="Image ${i + 1}" aria-selected="${i === 0}" data-i="${i}"><img src="${esc(imgUrl(im.src, 200))}" alt="" width="76" height="95" loading="lazy"></button>`).join('') : '';
     showImage(0);
-    bindViewer(main);
+    bindViewer(main, { mode: page.viewer, hint: page.hint });
   } else main.innerHTML = '<div class="gallery__ph skel"></div>';
   gallery.removeAttribute('aria-busy');
   thumbs.addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (b) showImage(Number(b.dataset.i)); });
@@ -135,6 +141,11 @@ export default async function product() {
     </div>
     <div data-notify-slot></div>
     <button class="text-btn pinfo__wish${wished() ? ' is-on' : ''}" type="button" data-pwish aria-pressed="${wished()}"><svg><use href="#i-heart"/></svg><span>${wished() ? 'Saved to wishlist' : 'Save to wishlist'}</span></button>
+    <section class="pinfo__focus" data-focus>
+      <h2 class="pinfo__focus-title">${esc(page.focusTitle)}</h2>
+      <p class="pinfo__focus-copy">${esc(page.focusCopy)}</p>
+      ${sizeOpt ? `<button class="text-btn" type="button" data-size-guide>${esc(page.sizeCta)}</button>` : ''}
+    </section>
     ${p.descriptionHtml ? `<div class="pinfo__desc">${p.descriptionHtml}</div>` : ''}
     <div class="accordion">
       <details><summary><span>Shipping &amp; returns</span><svg><use href="#i-plus"/></svg></summary><div class="accordion__body">${shippingCopy()}</div></details>

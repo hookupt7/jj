@@ -8,7 +8,7 @@ Storefront and admin for **EOS (Enemy of Swag)**, a Nigerian streetwear brand.
 - **Settings:** site settings (announcement bar, homepage, delivery fees, payment copy, size guide, SEO, maintenance mode) are stored **in Shopify** as a metaobject, so the app needs no database or disk (Render free tier friendly).
 - **Checkout:** cart → checkout form → Shopify **Draft Order** → success page → "Confirm on WhatsApp". One env var switches to real Shopify checkout later.
 
-- **Motion:** the storefront opens with a hold-to-enter sigil gate. The homepage keeps its original full-screen hero film, with richer motion on the existing elements (title letter reveal, sigil pulse, blood drips, embers, grain, heartbeat flicker, red veil). Floating garments and a draggable hanger rail appear on shop, collection and product pages only. Red wipe transitions, a crosshair cursor and the “IT’S US / NO COPIES / SEWN BY HAND / 666” ticker are in vanilla JS + CSS, with GSAP / ScrollTrigger / Lenis self-hosted under `public/js/vendor`. Reduced-motion is respected. When Shopify is not configured, two earlier EOS garment photos (`public/img/demo`) fill the shop catalog.
+- **Motion:** the storefront opens with a hold-to-enter sigil gate. The homepage keeps its original full-screen hero film, with richer motion on the existing elements (title letter reveal, sigil pulse, blood drips, embers, grain, heartbeat flicker, red veil). Shop, collection and product pages use a draggable rail and kind-aware motion (tees, hoodies, jackets, shirts, pants, shorts, slides, sneakers, hats, beanies, bags, chains, rings, socks, gloves, masks, accessories) driven by Shopify product type and tags. Each kind has its own product-page layout. Red wipe transitions, a crosshair cursor and the “IT’S US / NO COPIES / SEWN BY HAND / 666” ticker are in vanilla JS + CSS, with GSAP / ScrollTrigger / Lenis self-hosted under `public/js/vendor`. Reduced-motion is respected. When Shopify is not configured, the shop shows an empty state — there is no local stand-in catalog.
 
 
 ---
@@ -23,7 +23,7 @@ npm install
 npm start                 # http://localhost:3000   (admin: http://localhost:3000/admin)
 ```
 
-Without Shopify credentials the site still runs and the shop is served from a local catalog in `server/demo.js`. Without `ADMIN_PASSWORD` + `SESSION_SECRET` the admin stays locked.
+Without Shopify credentials the site still runs and the shop shows a clean empty state. Without `ADMIN_PASSWORD` + `SESSION_SECRET` the admin stays locked.
 
 ## 2. Environment variables
 
@@ -98,8 +98,7 @@ server/
   views/              layout.html, pages/*.html, svg.js (hand-drawn sigils, mandala, horns)
 public/
   css/                fonts.css (self-hosted, OFL), main.css, fx.css (gate, hero motion, shop float/rail, wipes)
-  js/                 boot.js (pre-paint flags), main.js, core, fx, float, rail, viewer, piece (drawer), cart, cards, ui, vendor (GSAP/Lenis), pages/*
-  img/demo/           garment cutouts used only when Shopify is not configured
+  js/                 boot.js (pre-paint flags), main.js, core, fx, kind, rail, viewer, piece (drawer), cart, cards, ui, vendor (GSAP/Lenis), pages/*
   fonts/ img/ media/  self-hosted fonts, sigil + icons, the hero film
 admin/                index.html + assets/admin.css + assets/admin.js (vanilla SPA)
 render.yaml, .env.example, package.json

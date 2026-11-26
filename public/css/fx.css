@@ -396,3 +396,193 @@ html.reduce-motion .hero__letter,
 html.reduce-motion .hero__letter.is-glitch,
 html.reduce-motion .hero__tint::before,
 html.reduce-motion .site-header .site-logo img { animation: none !important; }
+
+/* ---------- category rail + product pages ---------- */
+.rail__ledge-bar {
+  position: absolute; left: 0; right: 0; top: 118px; height: 8px; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, #5a4a3e 0%, #1a1410 45%, #6a5346 55%, #2a2018 100%);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 220, 180, 0.14);
+  border-radius: 3px;
+  display: none;
+}
+.rail--shelf .rail__ledge-bar { display: block; }
+.rail__ledge {
+  width: 78%; height: 7px; margin: 86px auto 0;
+  background: linear-gradient(180deg, #6a5a4e, #2a2018);
+  border-radius: 2px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.45);
+}
+.rail__strap {
+  width: 2px; height: 52px; margin: 0 auto;
+  background: linear-gradient(#8a7a6a, #3a2e26);
+  position: relative;
+}
+.rail__strap::after {
+  content: ""; position: absolute; left: 50%; bottom: -6px; width: 18px; height: 10px;
+  border: 2px solid #6a5a4e; border-bottom: 0; border-radius: 10px 10px 0 0;
+  transform: translateX(-50%);
+}
+.rail__item--shelf .rail__garment { margin-top: 10px; }
+.rail__item--strap .rail__garment { margin-top: 10px; }
+
+/* hang families: existing sway, heavier for hoodies/jackets, windier for bottoms */
+.rail__item--hoodie, .rail__item--jacket { animation-duration: 5.8s; }
+.rail__item--pants, .rail__item--shorts { animation-name: windSway; animation-duration: 4.2s; }
+@keyframes windSway {
+  0%, 100% { transform: rotate(-3.4deg); }
+  35% { transform: rotate(3.8deg); }
+  60% { transform: rotate(-1.6deg); }
+  80% { transform: rotate(2.2deg); }
+}
+.rail__item--pants.is-settled,
+.rail__item--shorts.is-settled {
+  animation: none;
+  transform: none;
+  transition: transform 0.7s var(--ease);
+}
+
+/* bags: strap swing */
+.rail__item--strap { animation-name: strapSwing; animation-duration: 3.8s; }
+@keyframes strapSwing {
+  0%, 100% { transform: rotate(-3.2deg); }
+  50% { transform: rotate(3.2deg); }
+}
+
+/* slides / sneakers: drop in + ash + tilt while the rail is dragged */
+.rail__item--slide .rail__garment,
+.rail__item--sneaker .rail__garment {
+  transform: translateY(-28px); opacity: 0;
+}
+.rail__item--slide.is-in .rail__garment,
+.rail__item--sneaker.is-in .rail__garment {
+  animation: dropIn 0.7s var(--ease) both;
+}
+@keyframes dropIn {
+  from { transform: translateY(-28px); opacity: 0; }
+  70% { transform: translateY(3px); opacity: 1; }
+  to { transform: none; opacity: 1; }
+}
+.rail.is-drag .rail__item--slide .rail__garment,
+.rail.is-drag .rail__item--sneaker .rail__garment {
+  transform: perspective(420px) rotateX(10deg) rotateY(-6deg);
+  transition: transform 0.2s linear;
+}
+.rail__ash { position: absolute; left: 50%; bottom: 4%; width: 0; height: 0; pointer-events: none; }
+.rail__ash i {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: #8a7a72; opacity: 0;
+}
+.rail__item.is-in .rail__ash i { animation: ashPuff 0.9s ease-out both; }
+.rail__ash i:nth-child(1) { left: -12px; animation-delay: 0.05s; }
+.rail__ash i:nth-child(2) { left: 4px; animation-delay: 0.12s; }
+.rail__ash i:nth-child(3) { left: 14px; animation-delay: 0.08s; }
+.rail__ash i:nth-child(4) { left: -4px; animation-delay: 0.18s; }
+.rail__ash i:nth-child(5) { left: 20px; animation-delay: 0.2s; }
+@keyframes ashPuff {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  30% { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(var(--ax, 8px), -22px) scale(1); }
+}
+
+/* hats / beanies: slow spin + red halo */
+.rail__item--hat .rail__garment,
+.rail__item--beanie .rail__garment {
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(214, 20, 48, 0);
+}
+.rail__item--hat .rail__garment { animation: haloPulse 3.4s ease-in-out infinite; }
+.rail__item--beanie .rail__garment { animation: haloPulse 4.4s ease-in-out infinite; }
+@keyframes haloPulse {
+  0%, 100% { box-shadow: 0 0 10px 0 rgba(214, 20, 48, 0.15); }
+  50% { box-shadow: 0 0 22px 4px rgba(214, 20, 48, 0.35); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .rail__item--hat:hover .rail__garment img,
+  .rail__item--beanie:hover .rail__garment img { animation: hatSpin 4s linear infinite; }
+}
+.rail__item--hat.is-spin .rail__garment img,
+.rail__item--beanie.is-spin .rail__garment img { animation: hatSpin 4s linear infinite; }
+@keyframes hatSpin { to { transform: rotateY(360deg); } }
+.rail__item--hat .rail__garment img,
+.rail__item--beanie .rail__garment img { transform-style: preserve-3d; }
+
+/* jewelry / accessories / masks: glint + sigil pulse */
+.rail__glint, .viewer__glint {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 230, 230, 0.28) 50%, transparent 65%);
+  transform: translateX(-120%);
+  mix-blend-mode: screen;
+  animation: glintSweep 5.5s ease-in-out infinite;
+}
+@keyframes glintSweep {
+  0%, 55% { transform: translateX(-120%); }
+  75% { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
+}
+.rail__sigil-pulse {
+  position: absolute; left: 50%; top: 12%; width: 28px; height: 28px; margin-left: -14px;
+  border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(214, 20, 48, 0.55);
+  animation: sigilRing 3.2s ease-out infinite;
+}
+@keyframes sigilRing {
+  0% { opacity: 0.6; box-shadow: 0 0 0 0 rgba(214, 20, 48, 0.5); }
+  100% { opacity: 0; box-shadow: 0 0 0 16px rgba(214, 20, 48, 0); }
+}
+
+/* product page layouts */
+.pinfo__focus {
+  margin: 22px 0 8px; padding: 16px 0 4px;
+  border-top: 1px solid var(--line);
+}
+.pinfo__focus-title {
+  margin: 0 0 8px;
+  font: 500 var(--fs-s)/1.2 var(--f-display);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--blood-hi);
+}
+.pinfo__focus-copy { margin: 0 0 10px; color: var(--bone-2); max-width: 42ch; }
+
+.product[data-family="footwear"] .gallery__main { aspect-ratio: 5 / 4; }
+.product[data-family="footwear"] .gallery__thumbs button { aspect-ratio: 5 / 4; }
+@media (min-width: 1000px) {
+  .product[data-family="footwear"] .product__grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(340px, 1fr);
+  }
+}
+
+.product[data-family="headwear"] .gallery__main {
+  aspect-ratio: 1; background: radial-gradient(circle at 50% 45%, #1a0a0c, var(--ink-3) 70%);
+}
+.product[data-family="headwear"] .gallery__thumbs button { aspect-ratio: 1; }
+.viewer__halo {
+  position: absolute; inset: 8%; border-radius: 50%; pointer-events: none;
+  box-shadow: 0 0 30px 8px rgba(214, 20, 48, 0.22);
+  animation: haloPulse 3.6s ease-in-out infinite;
+}
+
+.product[data-family="jewelry"] .gallery__main,
+.product[data-family="accessory"] .gallery__main {
+  aspect-ratio: 1; background: #0a0707;
+}
+.product[data-family="jewelry"] .gallery__main img,
+.product[data-family="accessory"] .gallery__main img { object-fit: contain; padding: 8%; }
+
+.product[data-family="bag"] .gallery__main { aspect-ratio: 4 / 5; }
+.product[data-family="bottoms"] .gallery__main { aspect-ratio: 3 / 4; }
+.product[data-family="soft"] .gallery__main { aspect-ratio: 1; }
+
+.card--slide .card__media, .card--sneaker .card__media { aspect-ratio: 5 / 4; }
+.card--hat .card__media, .card--beanie .card__media,
+.card--ring .card__media, .card--chain .card__media { aspect-ratio: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rail__item--slide .rail__garment,
+  .rail__item--sneaker .rail__garment,
+  .rail__item--hat .rail__garment,
+  .rail__item--beanie .rail__garment,
+  .rail__glint, .viewer__glint, .rail__sigil-pulse, .viewer__halo,
+  .rail__ash i, .rail__item--strap { animation: none !important; }
+  .rail__item--slide .rail__garment,
+  .rail__item--sneaker .rail__garment { opacity: 1; transform: none; }
+}

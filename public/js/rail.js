@@ -1,6 +1,7 @@
 // Draggable hanger rail with inertia. Garments hang and sway from a rusted pipe.
 import { $, $$, api, esc, imgUrl, ngn, reduced } from './core.js';
 import { openPiece } from './piece.js';
+import { productKind } from './kind.js';
 
 function inertia(root, track) {
   let x = 0; let vx = 0; let startX = 0; let startOff = 0; let lastX = 0; let lastT = 0; let down = false; let raf = 0;
@@ -76,12 +77,35 @@ export async function hangerRail(section = $('[data-rail]'), { products, hint } 
   const wrap = root.closest('[data-shop-rail], [data-rail-section]');
   if (wrap) wrap.hidden = false;
 
+  const kinds = items.map((p) => productKind(p));
+  const hasShelf = kinds.some((k) => k.display === 'shelf');
+  const hasHang = kinds.some((k) => k.display !== 'shelf');
+  root.classList.toggle('rail--shelf', hasShelf);
+  root.classList.toggle('rail--hang', hasHang);
+  if (hasShelf && !root.querySelector('.rail__ledge-bar')) {
+    const ledge = document.createElement('div');
+    ledge.className = 'rail__ledge-bar';
+    ledge.setAttribute('aria-hidden', 'true');
+    root.appendChild(ledge);
+  }
+
   track.innerHTML = items.map((p, i) => {
     const img = p.images && p.images[0];
-    return `<article class="rail__item" data-rail-item="${esc(p.handle)}" style="animation-delay:${(-i * 0.45).toFixed(2)}s">
-      <div class="rail__hook" aria-hidden="true"></div>
+    const k = kinds[i];
+    const mount = k.display === 'shelf'
+      ? '<div class="rail__ledge" aria-hidden="true"></div>'
+      : k.display === 'strap'
+        ? '<div class="rail__strap" aria-hidden="true"></div>'
+        : '<div class="rail__hook" aria-hidden="true"></div>';
+    const extras = (
+      (k.kind === 'slide' || k.kind === 'sneaker' ? '<span class="rail__ash" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>' : '')
+      + ((k.family === 'jewelry' || k.kind === 'accessory' || k.kind === 'mask') ? '<span class="rail__glint" aria-hidden="true"></span><span class="rail__sigil-pulse" aria-hidden="true"></span>' : '')
+    );
+    return `<article class="rail__item rail__item--${k.kind} rail__item--${k.display}" data-kind="${k.kind}" data-rail-item="${esc(p.handle)}" style="animation-delay:${(-i * 0.45).toFixed(2)}s">
+      ${mount}
       <button type="button" class="rail__garment" data-open="${esc(p.handle)}" aria-label="${esc(p.title)}">
         ${img ? `<img src="${esc(imgUrl(img.src, 540))}" alt="${esc(img.alt || p.title)}" width="540" height="420" loading="${i < 3 ? 'eager' : 'lazy'}" decoding="async">` : ''}
+        ${extras}
       </button>
       <div class="rail__meta">
         <span class="rail__name">${esc(p.title)}</span>
@@ -91,15 +115,26 @@ export async function hangerRail(section = $('[data-rail]'), { products, hint } 
   }).join('');
 
   $$('[data-open]', track).forEach((b) => b.addEventListener('click', (e) => {
-    // Ignore a click that was actually a drag.
-    if (root.classList.contains('is-drag') && Math.abs) { /* drag class stays during gesture */ }
     if (b.dataset.dragged === '1') { e.preventDefault(); return; }
+    const item = b.closest('[data-kind]');
+    if (item) {
+      if (item.dataset.kind === 'pants' || item.dataset.kind === 'shorts') item.classList.add('is-settled');
+      if (item.dataset.kind === 'hat' || item.dataset.kind === 'beanie') item.classList.toggle('is-spin');
+    }
     openPiece(b.dataset.open);
   }));
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) en.target.classList.add('is-in'); });
+    }, { threshold: 0.35 });
+    $$('.rail__item', track).forEach((el) => io.observe(el));
+  } else {
+    $$('.rail__item', track).forEach((el) => el.classList.add('is-in'));
+  }
 
   inertia(root, track);
   const note = hint || $('[data-rail-hint]');
-  if (note) { note.hidden = false; note.textContent = 'Drag the rail — or swipe — to walk the drop.'; }
+  if (note) { note.hidden = false; note.textContent = 'Drag to browse the drop.'; }
 }
 
 export async function shopRail() {

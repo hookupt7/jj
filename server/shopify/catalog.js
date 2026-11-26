@@ -89,8 +89,8 @@ function mapProduct(p) {
 }
 
 async function allProducts() {
-  // When Shopify is not configured, serve the clearly marked demo garments.
-  if (!config.shopify.configured) return require('../demo').products();
+  // No local stand-in catalog. The shop stays empty until Shopify is connected.
+  if (!config.shopify.configured) return [];
   return cache.wrap('catalog:products', TTL, async () => {
     const nodes = await paginate(async (after) => {
       const d = await gql(`query($after:String){ products(first: 20, after: $after, query: "status:active", sortKey: CREATED_AT, reverse: true) {
@@ -107,7 +107,7 @@ async function productByHandle(handle) {
 }
 
 async function allCollections() {
-  if (!config.shopify.configured) return require('../demo').collections();
+  if (!config.shopify.configured) return [];
   return cache.wrap('catalog:collections', TTL, async () => {
     const [d, products] = await Promise.all([
       gql(`{ collections(first: 100, sortKey: TITLE) { nodes {
@@ -213,9 +213,9 @@ function related(all, product, n = 4) {
 // Lean card shape for grids.
 function card(p) {
   return {
-    handle: p.handle, title: p.title, type: p.type, price: p.price, maxPrice: p.maxPrice, compareAt: p.compareAt,
+    handle: p.handle, title: p.title, type: p.type, tags: p.tags || [], price: p.price, maxPrice: p.maxPrice, compareAt: p.compareAt,
     onSale: p.onSale, available: p.available, images: p.images.slice(0, 2), sizes: p.sizes, colours: p.colours,
-    drop: p.drop, createdAt: p.createdAt, demo: Boolean(p.demo),
+    drop: p.drop, createdAt: p.createdAt,
     quick: p.variants.length === 1 ? { id: p.variants[0].id, available: p.variants[0].available, stock: p.variants[0].stock } : null,
   };
 }
