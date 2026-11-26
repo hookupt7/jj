@@ -52,7 +52,33 @@
       grid.removeAttribute('aria-busy');
     }).catch(function () {});
   }
-  setTimeout(function () { if (!window.__eosBooted) { showAll(); fillGrid(); } }, 5000);
+  var sent = 0;
+  function report(kind, msg, src, line) {
+    if (sent++ > 4) return;
+    try {
+      var body = JSON.stringify({ kind: kind, msg: String(msg || '').slice(0, 400), src: String(src || '').slice(0, 200), line: line || 0, page: location.pathname, booted: !!window.__eosBooted, ua: navigator.userAgent });
+      if (navigator.sendBeacon) navigator.sendBeacon('/api/client-log', new Blob([body], { type: 'application/json' }));
+      else if (window.fetch) fetch('/api/client-log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true });
+    } catch (e) {}
+  }
+  var fell = false;
+  function fallback(reason) {
+    if (fell || window.__eosBooted) return; fell = true;
+    report('fallback', reason);
+    showAll(); fillGrid();
+  }
+  window.__eosFallback = function (reason) { fell = false; report('fallback', reason); showAll(); fillGrid(); fell = true; };
+  window.__eosReport = report;
+  // Fall back only on a real failure: a script error or a script that failed to load before the app started.
+  window.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'SCRIPT') { report('script-load', 'failed to load', t.src); if (/\/js\/app\//.test(t.src)) setTimeout(function () { fallback('script-load ' + t.src); }, 800); return; }
+    report('error', e.message, e.filename, e.lineno);
+    if (!window.__eosBooted) setTimeout(function () { fallback('error ' + e.message); }, 1500);
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) { var r = e.reason; report('rejection', r && (r.message || r), r && r.stack); });
+  // Last resort only (very slow networks are fine: 25s).
+  setTimeout(function () { fallback('timeout-25s'); }, 25000);
   // Even when scripts run, never leave content hidden forever.
   setTimeout(function () { var els = document.querySelectorAll('[data-reveal]:not(.is-in),[data-reveal-stagger]:not(.is-in)'); for (var i = 0; i < els.length; i++) { var r = els[i].getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) els[i].classList.add('is-in'); } }, 4000);
 })();

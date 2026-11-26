@@ -66,3 +66,9 @@ Note: the owner pasted the client secret in chat; rotating it in Shopify and upd
   verify on /admin after deploy: toggle a product off, confirm /shop hides it and /product/<handle> 404s.
 - Real cutout photos for new categories will look best; the server keys out white backgrounds automatically.
 - Optional: per-category hover "action" animations on desktop, image zoom lens on product page.
+
+## IMPORTANT: front-end bundle (added for iPhone)
+The browser loads `public/js/app/main.js`, an esbuild bundle (target Safari/iOS 13, hashed chunks) of `public/js/*.js`.
+After editing anything in `public/js/` (except `boot.js` and `vendor/`), run `npm run build:js` and commit `public/js/app/`.
+`boot.js` (plain ES5) holds the safety net: it reports client errors to `POST /api/client-log` (visible in Render logs as
+`[client] {...}`) and shows plain product cards only if the app script really fails (error / load failure, or 25s).

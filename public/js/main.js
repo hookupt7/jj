@@ -41,5 +41,5 @@ safe(() => ui.quickView());
 
 const page = html.dataset.page;
 (PAGES[page] ? PAGES[page]().then((m) => m.default && m.default()) : Promise.resolve())
-  .catch((e) => console.warn('[eos] page script', e))
+  .catch((e) => { console.warn('[eos] page script', e); if (window.__eosReport) window.__eosReport('page', e && e.message, page); if (window.__eosFallback) window.__eosFallback('page ' + page); })
   .finally(() => { safe(() => fx.reveals()); window.__eosBooted = true; });

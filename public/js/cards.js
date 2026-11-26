@@ -105,5 +105,8 @@ export function liveCards(root = document) {
   const cards = root.querySelectorAll('.pc:not([data-live])');
   if (!('IntersectionObserver' in window)) { cards.forEach((c) => c.classList.add('is-live')); return; }
   if (!io) io = new IntersectionObserver((ens) => ens.forEach((en) => en.target.classList.toggle('is-live', en.isIntersecting)), { rootMargin: '60px 0px' });
-  cards.forEach((c) => { c.dataset.live = '1'; io.observe(c); });
+  cards.forEach((c) => {
+    c.dataset.live = '1'; io.observe(c);
+    c.addEventListener('touchstart', () => { c.classList.remove('is-tap'); void c.offsetWidth; c.classList.add('is-tap'); setTimeout(() => c.classList.remove('is-tap'), 520); }, { passive: true });
+  });
 }

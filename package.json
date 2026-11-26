@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "check": "node --check server/index.js"
+    "check": "node --check server/index.js",
+    "build:js": "esbuild public/js/main.js --bundle --splitting --format=esm --target=safari13,ios13 --minify --sourcemap --outdir=public/js/app --entry-names=[name] --chunk-names=c-[hash]"
   },
   "engines": {
     "node": ">=20.12"
@@ -18,5 +19,8 @@
     "express": "^4.21.2",
     "multer": "^2.0.2",
     "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
   }
 }

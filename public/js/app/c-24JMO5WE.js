@@ -1,0 +1,10 @@
+import{a as r,e as s,f as m,k as p,l as b,s as f,t as o}from"./c-GRGDXCIO.js";function $(){let e=r("[data-track-form]"),i=r("[data-track-result]");if(!e)return;let d=new URLSearchParams(location.search);d.get("o")&&(e.orderNumber.value=d.get("o")),e.addEventListener("submit",async h=>{h.preventDefault();let n=r("[data-form-msg]",e),l=r('button[type="submit"]',e);if(n.className="form-msg",n.textContent="",!e.orderNumber.value.trim()||!e.phone.value.trim()){n.textContent="Both fields, please.",n.classList.add("is-error");return}o(l,!0);try{let{order:t}=await p("/api/orders/track",{method:"POST",body:{orderNumber:e.orderNumber.value.trim(),phone:e.phone.value.trim()}}),c=t.steps.map(a=>a.key).indexOf(t.status);i.innerHTML=`<div class="track__card">
+        <p class="section-index"><span class="num">&#8224;</span><span>Order</span></p>
+        <h2>${s(t.orderNumber)}</h2>
+        <p class="page-hero__meta">Placed ${new Date(t.placedAt).toLocaleDateString("en-NG",{day:"numeric",month:"long",year:"numeric"})}${t.destination?` \u2014 to ${s(t.destination)}`:""}</p>
+        <span class="track__status${t.status==="cancelled"?" is-cancelled":""}">${s(t.statusLabel)}</span>
+        ${t.status==="cancelled"?"":`<ol class="timeline">${t.steps.map((a,u)=>`<li class="${u<c?"is-done":u===c?"is-now":""}">${s(a.label)}</li>`).join("")}</ol>`}
+        <dl class="totals">${t.items.map(a=>`<div><dt>${a.quantity} \xD7 ${s(a.title)}${a.variant?` (${s(a.variant)})`:""}</dt><dd></dd></div>`).join("")}<div class="is-total"><dt>Total</dt><dd>${m(t.total)}</dd></div></dl>
+        <a class="btn btn--blood" href="${f(`Hi EOS, checking on my order ${t.orderNumber}.`)}" target="_blank" rel="noopener"><svg class="btn__icon"><use href="#i-whatsapp"/></svg><span>Ask about this order</span></a>
+      </div>`}catch(t){i.innerHTML="",n.textContent=b(t)?"Tracking opens with the first drop.":t.message,n.classList.add("is-error")}finally{o(l,!1)}})}export{$ as default};
+//# sourceMappingURL=c-24JMO5WE.js.map
