@@ -24,8 +24,10 @@ const staticOpts = (maxAge) => ({ maxAge, index: false, fallthrough: true, setHe
 app.use('/media', express.static(path.join(PUBLIC, 'media'), staticOpts('30d')));
 app.use('/img', express.static(path.join(PUBLIC, 'img'), staticOpts('30d')));
 app.use('/fonts', express.static(path.join(PUBLIC, 'fonts'), { ...staticOpts('365d'), immutable: true }));
-app.use('/css', express.static(path.join(PUBLIC, 'css'), staticOpts(config.isProd ? '5m' : 0)));
-app.use('/js', express.static(path.join(PUBLIC, 'js'), staticOpts(config.isProd ? '5m' : 0)));
+// CSS/JS: always revalidate (ETag) so a phone never mixes old cached ES modules with new ones.
+const fresh = { index: false, fallthrough: true, etag: true, lastModified: true, setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') };
+app.use('/css', express.static(path.join(PUBLIC, 'css'), fresh));
+app.use('/js', express.static(path.join(PUBLIC, 'js'), fresh));
 app.get('/favicon.png', (req, res) => res.sendFile(path.join(PUBLIC, 'favicon.png'), { maxAge: '30d' }));
 app.get('/favicon.ico', (req, res) => res.sendFile(path.join(PUBLIC, 'favicon.png'), { maxAge: '30d' }));
 app.use('/admin/assets', express.static(path.join(ADMIN, 'assets'), staticOpts(config.isProd ? '1d' : 0)));

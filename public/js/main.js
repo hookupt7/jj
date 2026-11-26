@@ -17,27 +17,29 @@ const PAGES = {
   wishlist: () => import('./pages/wishlist.js'),
 };
 
-tagStageImages();
-fx.gate();
-fx.transitions();
-fx.grain();
-fx.autoplayVideos();
-fx.toTop();
-fx.cursor();
-fx.progress();
-fx.magnetic();
-fx.smoothScroll();
-initCart();
-ui.header();
-ui.mobileMenu();
-ui.search();
-ui.initModal();
-ui.newsletter();
-ui.waCompose();
-ui.quickAdd();
-ui.quickView();
+// One failing effect must never stop the page (products must always render).
+const safe = (fn) => { try { fn(); } catch (e) { console.warn('[eos] init', e); } };
+safe(() => tagStageImages());
+safe(() => fx.gate());
+safe(() => fx.transitions());
+safe(() => fx.grain());
+safe(() => fx.autoplayVideos());
+safe(() => fx.toTop());
+safe(() => fx.cursor());
+safe(() => fx.progress());
+safe(() => fx.magnetic());
+safe(() => fx.smoothScroll());
+safe(() => initCart());
+safe(() => ui.header());
+safe(() => ui.mobileMenu());
+safe(() => ui.search());
+safe(() => ui.initModal());
+safe(() => ui.newsletter());
+safe(() => ui.waCompose());
+safe(() => ui.quickAdd());
+safe(() => ui.quickView());
 
 const page = html.dataset.page;
 (PAGES[page] ? PAGES[page]().then((m) => m.default && m.default()) : Promise.resolve())
   .catch((e) => console.warn('[eos] page script', e))
-  .finally(() => { fx.reveals(); });
+  .finally(() => { safe(() => fx.reveals()); window.__eosBooted = true; });
