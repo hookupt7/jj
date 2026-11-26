@@ -69,7 +69,7 @@ Note: the owner pasted the client secret in chat; rotating it in Shopify and upd
 
 ## IMPORTANT: front-end bundle (added for iPhone)
 The browser loads `public/js/app/main.js`, an esbuild bundle (target Safari/iOS 13, hashed chunks) of `public/js/*.js`.
-After editing anything in `public/js/` (except `boot.js` and `vendor/`), run `npm run build:js` and commit `public/js/app/`.
+After editing anything in `public/js/` (except `boot.js` and `vendor/`), run `npm run build:js` and commit `public/js/app/` with `git add -A` (new hashed chunk files must be added, `git commit -a` misses them and breaks the site).
 `boot.js` (plain ES5) holds the safety net: it reports client errors to `POST /api/client-log` (visible in Render logs as
 `[client] {...}`) and shows plain product cards only if the app script really fails (error / load failure, or 25s).
 
